@@ -6,20 +6,20 @@ jobs:
   build-test-python:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-20.04, windows-2022]
+        os: [macos-12, ubuntu-20.04, windows-2022]
         python-version: [
-          # "3.6.x", 
-          # "3.7.x", 
+          "3.6.x", 
+          "3.7.x", 
           "3.8.x", 
-          # "3.9.x", 
-          # "3.10.x", 
-          # "3.11.x"
+          "3.9.x", 
+          "3.10.x", 
+          "3.11.x"
         ]
         architecture: [x64]
     runs-on: ${{matrix.os}}
     steps:
     - name: setup macos
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'macos-12'
       run: brew install tbb
     - name: setup ubuntu
       if: matrix.os == 'ubuntu-20.04'

@@ -32,7 +32,7 @@ setup(
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
     version = "0.0.1",
-    dependencies = [
+    install_requires = [
         "matplotlib>=3.4.2",
         "numpy>=1.19.2",
         "scipy>=1.5.2"
