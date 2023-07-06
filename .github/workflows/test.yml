@@ -18,6 +18,14 @@ jobs:
         architecture: [x64]
     runs-on: ${{matrix.os}}
     steps:
+    - name: setup macos
+      if: matrix.os == 'macos-latest'
+      run: brew install tbb
+    - name: setup ubuntu
+      if: matrix.os == 'ubuntu-20.04'
+      run: |
+        sudo apt update
+        sudo apt install libtbb-dev
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2

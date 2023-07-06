@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.m": "matlab",
+        "*.dat": "tsv",
+        "*.info": "csv",
+        "*.Ctrl": "ini",
+        "*.Morph": "ini",
+        "*.Elec": "ini",
+        "execution": "cpp"
+    }
+}
