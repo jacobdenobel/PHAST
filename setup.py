@@ -24,12 +24,18 @@ if platform.system() in ("Linux", "Darwin"):
         pass
 else:
     ext._add_cflags(["/O2", "/DHASTBB"])
+
+
+with open(os.path.join(os.path.dirname(__file__), "README.md")) as f:
+    description = f.read()
     
 setup(
-    name="phast",
+    name="phastc",
     author="Jacob de Nobel",
     ext_modules=[ext],
     cmdclass={"build_ext": build_ext},
+    description="Phenomological Adaptive STochastic auditory nerve fiber model",
+    long_description=description,
     zip_safe=False,
     version = "0.0.1",
     install_requires = [
