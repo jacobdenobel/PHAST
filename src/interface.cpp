@@ -13,9 +13,9 @@ using namespace phast;
 void define_common(py::module &m)
 {
 #ifdef HASTBB
-    m.attr("HAS_TBB", true);
+    m.attr("CAN_THREAD") = true;
 #else
-    m.attr("HAS_TBB", false);
+    m.attr("CAN_THREAD") = false;
 #endif
     py::class_<Pulse>(m, "Pulse")
         .def(py::init<double, size_t, size_t>())
