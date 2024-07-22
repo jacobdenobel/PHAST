@@ -44,7 +44,10 @@ class Decay:
     def time_step(self) -> float: ...
 
 class Exponential(HistoricalDecay):
-    def __init__(self, adaptation_amplitude: float = ..., accommodation_amplitude: float = ..., sigma_adaptation_amplitude: float = ..., sigma_accommodation_amplitude: float = ..., memory_size: int = ..., allow_precomputed_accommodation: bool = ..., cached_decay: bool = ..., cache: list[float] = ..., exponents: list[tuple[float, float]] = ...) -> None: ...
+    def __init__(self, adaptation_amplitude: float = ..., accommodation_amplitude: float = ..., 
+                 sigma_adaptation_amplitude: float = ..., sigma_accommodation_amplitude: float = ..., 
+                 exponents: list[tuple[float, float]] = ...,
+                 memory_size: int = ..., allow_precomputed_accommodation: bool = ..., cached_decay: bool = ..., cache: list[float] = ...) -> None: ...
     @property
     def exponents(self) -> list[tuple[float, float]]: ...
 
@@ -133,7 +136,16 @@ class Point:
     def __init__(self, arg0: float, arg1: float) -> None: ...
 
 class Powerlaw(HistoricalDecay):
-    def __init__(self, adaptation_amplitude: float = ..., accommodation_amplitude: float = ..., sigma_adaptation_amplitude: float = ..., sigma_accommodation_amplitude: float = ..., memory_size: int = ..., allow_precomputed_accommodation: bool = ..., cached_decay: bool = ..., cache: list[float] = ..., offset: float = ..., exp: float = ...) -> None: ...
+    def __init__(self, 
+                 adaptation_amplitude: float = ..., 
+                 accommodation_amplitude: float = ..., 
+                 sigma_adaptation_amplitude: float = ..., 
+                 sigma_accommodation_amplitude: float = ..., 
+                 offset: float = ..., 
+                 exp: float = ...,
+                 memory_size: int = ..., 
+                 allow_precomputed_accommodation: bool = ..., 
+                 cached_decay: bool = ..., cache: list[float] = ...) -> None: ...
     @property
     def exp(self) -> float: ...
     @property
