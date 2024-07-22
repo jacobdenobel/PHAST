@@ -98,7 +98,8 @@ namespace phast
         const double sigma_rs = 0.0,
         const bool evaluate_in_parallel = false,
         const double time_step = constants::time_step,
-        const double time_to_ap = constants::time_to_ap        
+        const double time_to_ap = constants::time_to_ap,
+        const bool store_stats = false        
     )
     {
         const auto pulse_train = CompletePulseTrain(pulse_train_array, time_step, time_to_ap);
@@ -109,7 +110,8 @@ namespace phast
             pulse_train.n_pulses,
             sigma_rs,
             refractory_period,
-            decay);
+            decay,
+            store_stats);
 
         return phast({default_fiber}, pulse_train, evaluate_in_parallel, n_trials, use_random);
     }

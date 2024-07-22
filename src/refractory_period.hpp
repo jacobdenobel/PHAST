@@ -36,13 +36,13 @@ namespace phast
             if (stats.n_spikes <= 0)
                 return 1.0;
 
-            double r1 = rng();
+            const double r1 = rng();
             const auto time_since_last_spike = static_cast<double>(t - stats.spikes[stats.n_spikes - 1]) * time_step;
 
             if (time_since_last_spike < absolute.tau(r1))
                 return std::numeric_limits<double>::infinity();
 
-            double r2 = rng();
+            const double r2 = rng();
             return 1. / (1. - exp(-(time_since_last_spike - absolute.tau(r1)) / relative.tau(r2)));
         }
 

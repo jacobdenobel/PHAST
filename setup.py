@@ -37,7 +37,7 @@ setup(
     description="Phenomological Adaptive STochastic auditory nerve fiber model",
     long_description=description,
     zip_safe=False,
-    version = "0.0.1",
+    version = "0.0.2",
     install_requires = [
         "matplotlib>=3.3.4",
         "numpy>=1.19.2",

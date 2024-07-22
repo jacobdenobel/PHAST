@@ -34,12 +34,13 @@ namespace phast
               const size_t n_max,
               const double sigma_rs,
               const RefractoryPeriod &refractory_period,
-              const std::shared_ptr<Decay> decay)
+              const std::shared_ptr<Decay> decay,
+              const bool store_stats = false)
 
             : i_det(i_det), spatial_constant(spatial_constant), sigma(sigma), fiber_id(fiber_id),
               stochastic_threshold(0.0), threshold(0.0), refractoriness(0.0), accommodation(0.0), adaptation(0.0),
               sigma_rs(sigma_rs),
-              stats(n_max, fiber_id),
+              stats(n_max, fiber_id, store_stats),
               refractory_period(refractory_period),
               decay(decay)
         {
@@ -101,7 +102,8 @@ namespace phast
                 i_det, spatial_constant, new_sigma, fiber_id,
                 stats.spikes.size(), sigma_rs,
                 refractory_period.randomize(generator()),
-                new_decay
+                new_decay,
+                stats.store_stats
             );
         }
 

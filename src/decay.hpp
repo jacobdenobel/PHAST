@@ -3,7 +3,6 @@
 #include "fiber_stats.hpp"
 #include "pulse_train.hpp"
 
-
 namespace phast
 {
     struct Decay
@@ -169,11 +168,12 @@ namespace phast
                         const double accommodation_amplitude = 0.0003,
                         const double sigma_adaptation_amplitude = 0.0,
                         const double sigma_accommodation_amplitude = 0.0,
+                        const Exponents &exponents = Exponents({{0.6875, 0.088}, {0.1981, 0.7}, {0.0571, 5.564}}),
                         const size_t memory_size = 0,
                         bool allow_precomputed_accommodation = false,
                         bool cached_decay = false,
-                        const std::vector<double> &cache = {},
-                        const Exponents &exponents = Exponents({{0.6875, 0.088}, {0.1981, 0.7}, {0.0571, 5.564}}))
+                        const std::vector<double> &cache = {}
+                        )
                 : HistoricalDecay(adaptation_amplitude, accommodation_amplitude, sigma_adaptation_amplitude,
                                   sigma_accommodation_amplitude, memory_size, allow_precomputed_accommodation, cached_decay, cache),
                   exponents(exponents)
@@ -193,10 +193,12 @@ namespace phast
                 return std::make_shared<Exponential>(
                     std::max(0., adaptation_amplitude + (sigma_adaptation_amplitude * rng())),
                     std::max(0., accommodation_amplitude + (sigma_accommodation_amplitude * rng())),
-                    sigma_adaptation_amplitude, sigma_accommodation_amplitude, memory_size,
+                    sigma_adaptation_amplitude, sigma_accommodation_amplitude,
+                    exponents,
+                    memory_size,
                     allow_precomputed_accommodation_,
-                    cached_decay_, cache_,
-                    exponents);
+                    cached_decay_, cache_
+                    );
             };
         };
 
@@ -213,12 +215,13 @@ namespace phast
                      const double accommodation_amplitude = 8e-6,
                      const double sigma_adaptation_amplitude = 0.0,
                      const double sigma_accommodation_amplitude = 0.0,
+                     const double offset = 0.06,
+                     const double exp = -1.5,
                      const size_t memory_size = 0,
                      bool allow_precomputed_accommodation = false,
                      bool cached_decay = false,
-                     const std::vector<double> &cache = {},
-                     const double offset = 0.06,
-                     const double exp = -1.5)
+                     const std::vector<double> &cache = {}                     
+                     )
                 : HistoricalDecay(adaptation_amplitude, accommodation_amplitude, sigma_adaptation_amplitude,
                                   sigma_accommodation_amplitude, memory_size, allow_precomputed_accommodation, cached_decay, cache),
                   offset(offset), exp(exp) {}
@@ -234,9 +237,10 @@ namespace phast
                     std::max(0., adaptation_amplitude + (sigma_adaptation_amplitude * rng())),
                     std::max(0., accommodation_amplitude + (sigma_accommodation_amplitude * rng())),
                     sigma_adaptation_amplitude, sigma_accommodation_amplitude, memory_size,
+                    offset, exp,
                     allow_precomputed_accommodation_,
-                    cached_decay_, cache_,
-                    offset, exp);
+                    cached_decay_, cache_
+                    );
             };
         };
 
@@ -453,26 +457,31 @@ namespace phast
         {
             LeakyIntegrator adaptation;
             LeakyIntegrator accommodation;
-            double sigma;
+            double sigma_rate;
+            double sigma_amp;
 
             LeakyIntegratorDecay(
                 const double adaptation_amplitude = 1.0,
                 const double accommodation_amplitude = 1.0,
                 const double adaptation_rate = 2.0,
                 const double accommodation_rate = 2.0,
-                const double sigma = 0.0)
+                const double sigma_amp = 0.0,
+                const double sigma_rate = 0.0)
                 : adaptation(adaptation_amplitude, adaptation_rate),
                   accommodation(accommodation_amplitude, accommodation_rate),
-                  sigma(sigma)
+                  sigma_rate(sigma_rate), sigma_amp(sigma_amp)
+
             {
             }
 
             std::shared_ptr<Decay> randomize(RandomGenerator &rng) override
             {
                 return std::make_shared<LeakyIntegratorDecay>(
-                    std::max(0., adaptation.scale + (sigma * rng())),
-                    std::max(0., accommodation.scale + (sigma * rng())),
-                    adaptation.rate, accommodation.rate, sigma);
+                    std::max(0., adaptation.scale + (sigma_rate * rng())),
+                    std::max(0., accommodation.scale + (sigma_rate * rng())),
+                    std::max(0., adaptation.rate + (sigma_rate * rng())), 
+                    std::max(0., accommodation.rate +  (sigma_rate * rng())), 
+                    sigma_rate, sigma_amp);
             };
 
             double compute_spike_adaptation(const size_t t, const FiberStats &stats, const std::vector<double> &i_det) override

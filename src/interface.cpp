@@ -229,32 +229,34 @@ void define_decay(py::module &m)
 
     py::class_<original::Exponential, original::HistoricalDecay, std::shared_ptr<original::Exponential>>(m, "Exponential")
         .def(
-            py::init<double, double, double, double, size_t, bool, bool, std::vector<double>, original::Exponential::Exponents>(),
+            py::init<double, double, double, double, original::Exponential::Exponents, size_t, bool, bool, std::vector<double>>(), 
             py::arg("adaptation_amplitude") = 0.01,
             py::arg("accommodation_amplitude") = 0.0003,
             py::arg("sigma_adaptation_amplitude") = 0.0,
             py::arg("sigma_accommodation_amplitude") = 0.0,
+            py::arg("exponents") = original::Exponential::Exponents({{0.6875, 0.088}, {0.1981, 0.7}, {0.0571, 5.564}}),
             py::arg("memory_size") = 0,
             py::arg("allow_precomputed_accommodation") = false,
             py::arg("cached_decay") = false,
-            py::arg("cache") = std::vector<double>(),
-            py::arg("exponents") = original::Exponential::Exponents({{0.6875, 0.088}, {0.1981, 0.7}, {0.0571, 5.564}}))
+            py::arg("cache") = std::vector<double>()
+        )
         .def_readonly("exponents", &original::Exponential::exponents)
         .def("__repr__", [](const original::Exponential &e)
              { return "<Exponential #" + std::to_string(e.exponents.size()) + ">"; });
 
     py::class_<original::Powerlaw, original::HistoricalDecay, std::shared_ptr<original::Powerlaw>>(m, "Powerlaw")
-        .def(py::init<double, double, double, double, size_t, bool, bool, std::vector<double>, double, double>(),
+        .def(py::init<double, double, double, double,  double, double, size_t, bool, bool, std::vector<double>>(),
              py::arg("adaptation_amplitude") = 2e-4,
              py::arg("accommodation_amplitude") = 8e-6,
              py::arg("sigma_adaptation_amplitude") = 0.0,
              py::arg("sigma_accommodation_amplitude") = 0.0,
+             py::arg("offset") = 0.06,
+             py::arg("exp") = -1.5,
              py::arg("memory_size") = 0,
              py::arg("allow_precomputed_accommodation") = false,
              py::arg("cached_decay") = false,
-             py::arg("cache") = std::vector<double>(),
-             py::arg("offset") = 0.06,
-             py::arg("exp") = -1.5)
+             py::arg("cache") = std::vector<double>()
+             )
         .def_readonly("offset", &original::Powerlaw::offset)
         .def_readonly("exp", &original::Powerlaw::exp)
         .def("__repr__", [](const original::Powerlaw &e)
@@ -266,14 +268,15 @@ void define_fiber(py::module &m)
     py::class_<Fiber>(m, "Fiber")
         .def(
             py::init<
-                std::vector<double>,   // i_det
-                std::vector<double>,   // spatial_constant
-                std::vector<double>,   // sigma
-                int,                   // fiber_id
-                size_t,                // n_max
-                double,                // sigma_rs
-                RefractoryPeriod,      // refractory_period
-                std::shared_ptr<Decay> // decay
+                std::vector<double>,    // i_det
+                std::vector<double>,    // spatial_constant
+                std::vector<double>,    // sigma
+                int,                    // fiber_id
+                size_t,                 // n_max
+                double,                 // sigma_rs
+                RefractoryPeriod,       // refractory_period
+                std::shared_ptr<Decay>, // decay
+                bool                    // store_stats
                 >(),
             py::arg("i_det"),
             py::arg("spatial_constant"),
@@ -282,7 +285,8 @@ void define_fiber(py::module &m)
             py::arg("n_max"),
             py::arg("sigma_rs") = 0.0,
             py::arg("refractory_period") = RefractoryPeriod(),
-            py::arg("decay") = std::make_shared<original::Powerlaw>())
+            py::arg("decay") = std::make_shared<original::Powerlaw>(),
+            py::arg("store_stats") = false)
         .def_readwrite("i_det", &Fiber::i_det)
         .def_readwrite("spatial_constant", &Fiber::spatial_constant)
         .def_readwrite("sigma", &Fiber::sigma)
@@ -311,7 +315,8 @@ void define_phast(py::module &m)
               double,                                   // sigma_rs = 0.0,
               bool,                                     // evaluate_in_parallel = false,
               double,                                   // time_step = constants::time_step
-              double>(&phast::phast),
+              double,
+              bool>(&phast::phast),
           py::arg("i_det"),
           py::arg("i_min"),
           py::arg("pulse_train"),
@@ -324,7 +329,8 @@ void define_phast(py::module &m)
           py::arg("sigma_rs") = 0.0,
           py::arg("evaluate_in_parallel") = false,
           py::arg("time_step") = constants::time_step,
-          py::arg("time_to_ap") = constants::time_to_ap);
+          py::arg("time_to_ap") = constants::time_to_ap,
+          py::arg("store_stats") = false);
 
     m.def("phast", py::overload_cast<std::vector<Fiber>, const PulseTrain &, const bool, const int, bool>(&phast::phast),
           py::arg("fibers"),
@@ -394,15 +400,17 @@ void define_approximated(py::module &m)
 
     py::class_<LeakyIntegratorDecay, Decay, std::shared_ptr<LeakyIntegratorDecay>>(m, "LeakyIntegratorDecay")
         .def(
-            py::init<double, double, double, double, double>(),
+            py::init<double, double, double, double, double, double>(),
             py::arg("adaptation_amplitude") = 1.0,
             py::arg("accommodation_amplitude") = 1.0,
             py::arg("adaptation_rate") = 2.0,
             py::arg("accommodation_rate") = 2.0,
-            py::arg("sigma") = 0.0)
+            py::arg("sigma_amp") = 0.0,
+            py::arg("sigma_rate") = 0.0)
         .def_readonly("adaptation", &LeakyIntegratorDecay::adaptation)
         .def_readonly("accommodation", &LeakyIntegratorDecay::accommodation)
-        .def_readonly("sigma", &LeakyIntegratorDecay::sigma);
+        .def_readonly("sigma_amp", &LeakyIntegratorDecay::sigma_amp)
+        .def_readonly("sigma_rate", &LeakyIntegratorDecay::sigma_rate);
 }
 
 PYBIND11_MODULE(phastcpp, m)
