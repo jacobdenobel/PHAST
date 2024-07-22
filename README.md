@@ -14,10 +14,10 @@ The model has been tested and built for python versions 3.6-11, and is compiled 
 The PHAST model simulates the response of a single auditory nerve fiber to electrical stimulation. As such, the model revolves arround two main inputs, the stimulus, and a list of fibers. These are both managed by objects in Python and explained in detail in the following sections.
 
 ### Pulse Train
-The pulse train encodes the stimulus to be used in the simulation. We differentiate between a ```ConstantPulseTrain``` object and a ```CompletePulseTrain``` object. The former can be used when the stimulation has a constant interval and amplitude, and can be a lot more efficient. The latter should be used whenever each pulse in the pulse train can be different, for example when using stimuli produced by a speech coding strategy. The ```CompletePulseTrain``` has the following signature:
+The pulse train encodes the stimulus to be used in the simulation. We differentiate between a ```ConstantPulseTrain``` object and a ```PulseTrain``` object. The former can be used when the stimulation has a constant interval and amplitude, and can be a lot more efficient. The latter should be used whenever each pulse in the pulse train can be different, for example when using stimuli produced by a speech coding strategy. The ```PulseTrain``` has the following signature:
 
 ```python
-stimulus = CompletePulseTrain(
+stimulus = PulseTrain(
     pulse_train: np.ndarray = ...,
     time_step: float = 1e-6,
     ...
