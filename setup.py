@@ -36,6 +36,7 @@ setup(
     cmdclass={"build_ext": build_ext},
     description="Phenomological Adaptive STochastic auditory nerve fiber model",
     long_description=description,
+    long_description_content_type="text/markdown",
     zip_safe=False,
     version = "1.0.0",
     install_requires = [
