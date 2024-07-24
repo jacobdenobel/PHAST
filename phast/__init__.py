@@ -36,10 +36,7 @@ from .phastcpp import (
     set_seed,
 )
 
-I_DET = os.path.join(
-    os.path.realpath(os.path.dirname(__file__)),
-    "idet.npy"
-)
+I_DET = os.path.join(os.path.realpath(os.path.dirname(__file__)), "idet.npy")
 
 
 def generate_stimulus(
