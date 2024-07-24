@@ -57,4 +57,4 @@ class TestProblem(unittest.TestCase):
         )
         fiber_stats = phast.phast([fiber], stimulus)
         spike_times = phast.spike_times(fiber_stats, 18e-6)
-        print(spike_times)
+        self.assertEqual(len(spike_times), 0)
