@@ -1,5 +1,6 @@
 """PHAST auditory nerve fiber model."""
 
+import os
 import warnings
 from collections.abc import Iterable
 from time import time
@@ -33,6 +34,11 @@ from .phastcpp import (
     RefractoryPeriod,
     phast,
     set_seed,
+)
+
+I_DET = os.path.join(
+    os.path.realpath(os.path.dirname(__file__)),
+    "idet.npy"
 )
 
 

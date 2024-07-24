@@ -53,7 +53,7 @@ fiber = Fiber(
     decay: Decay = ...
 )
 ```
-Here ```i_det, spatial_constant, sigma```, are all vectors of length number of electrodes, which should match the number of electrodes in the ```PulseTrain``` used in stimulation. For ```i_det```, this defines the deteriministic threshold after which the fiber spikes, for a pulse from a given electrode. The ```spatial_constant``` defines an electrode specific spatial constant, which is used to scale stimulation. The ```sigma``` parameter is another electrode specific parameter, which is the repriprocal of relative spread. ```fiber_id``` encodes a unique identifier, specified by the used to attach to the fiber. ```n_max``` is used for storing statistics, and should be the number of pulses in the experiment. ```sigma_rs``` is used for stochasticy between trials. ```RefractoryPeriod``` is a parameter wrapper for handling both absolute and relative refractoriness. It can be defined as follows, and if not given explicitly to the ```Fiber```, the following default values are used:
+Here ```i_det, spatial_constant, sigma```, are all vectors of length number of electrodes, which should match the number of electrodes in the ```PulseTrain``` used in stimulation. For ```i_det```, this defines the deteriministic threshold after which the fiber spikes, for a pulse from a given electrode. The ```spatial_constant``` defines an electrode specific spatial constant, which is used to scale stimulation. The ```sigma``` parameter is another electrode specific parameter, which is the relative spread per ```i_det```, i.e. ```relative_spread * i_det```. ```fiber_id``` encodes a unique identifier, specified by the used to attach to the fiber. ```n_max``` is used for storing statistics, and should be the number of pulses in the experiment. ```sigma_rs``` is used for stochasticy between trials. ```RefractoryPeriod``` is a parameter wrapper for handling both absolute and relative refractoriness. It can be defined as follows, and if not given explicitly to the ```Fiber```, the following default values are used:
 
 ```python
 ref = RefractoryPeriod(
@@ -82,7 +82,7 @@ decay = Exponential(
 ```
 For the power law model, the following is required:
 ```python
-decay = PowerLaw(
+decay = Powerlaw(
     adaptation_amplitude: float = 2e-4,
     accommodation_amplitude: float = 8e-6,
     sigma_adaptation_amplitude: float = 0.0,
@@ -106,7 +106,7 @@ Then finally, we can combine the above to run the ```phast``` model (for a singl
 ```
 fiber_stats = phast(
     [fiber],    # A list of Fiber objects
-    pt,         # A PulseTrain object, either CompletePulseTrain or ConstantPulseTrain
+    pt,         # A PulseTrain object, either PulseTrain or ConstantPulseTrain
     ...
 )
 ```

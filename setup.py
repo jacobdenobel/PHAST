@@ -6,9 +6,12 @@ from setuptools import setup
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
+SOURCES = list(glob("src/*cpp"))
+HEADERS = list(glob("src/*hpp"))
+
 ext = Pybind11Extension(
     "phast.phastcpp", 
-    glob("src/*cpp"), 
+    SOURCES, 
     include_dirs=["src"],
     cxx_std=17
 )
@@ -37,11 +40,18 @@ setup(
     description="Phenomological Adaptive STochastic auditory nerve fiber model",
     long_description=description,
     long_description_content_type="text/markdown",
+    packages=["phast"],
+    package_data={
+        'phast': [
+            'phast/idet.npy',
+        ],
+    },
     zip_safe=False,
     version = "1.0.0",
     install_requires = [
         "matplotlib>=3.3.4",
         "numpy>=1.19.2",
         "scipy>=1.5.2"
-    ]
+    ],
+    include_package_data=True
 )
