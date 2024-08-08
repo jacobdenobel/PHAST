@@ -74,7 +74,7 @@ namespace phast
             if (pulse_train.sigma_ap != 0.0)
             {
                 const auto z = generator()();
-                ap_time = pulse.electrode + static_cast<size_t>(std::floor(
+                ap_time = pulse.time + static_cast<size_t>(std::floor(
                                   std::max(0., (pulse_train.time_to_ap + (pulse_train.sigma_ap * z))) / pulse_train.time_step));
             }
 
