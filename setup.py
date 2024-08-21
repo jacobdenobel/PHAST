@@ -15,14 +15,8 @@ if platform.system() in ("Linux", "Darwin"):
     os.environ["CC"] = "g++"
     os.environ["CXX"] = "g++"
     ext._add_cflags(["-O3"])
-    try:
-        if subprocess.check_output("ldconfig -p | grep tbb", shell=True):
-            ext._add_ldflags(["-ltbb"])
-            ext._add_cflags(["-DHASTBB"])
-    except subprocess.CalledProcessError:
-        pass
 else:
-    ext._add_cflags(["/O2", "/DHASTBB"])
+    ext._add_cflags(["/O2"])
 
 
 with open(os.path.join(os.path.dirname(__file__), "README.md")) as f:

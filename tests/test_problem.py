@@ -49,7 +49,6 @@ class TestProblem(unittest.TestCase):
             spatial_constant=spatial_factor,
             sigma=sigma,  # membrane sigma = I_det * RS
             fiber_id=fiber_idx,
-            n_max=stimulus.n_pulses,  # the number of pulses in the experiment
             sigma_rs=self.config["sigma_rs"],
             refractory_period=refractoriness,  # object
             decay=decay, 

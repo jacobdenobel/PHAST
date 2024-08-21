@@ -24,6 +24,8 @@ namespace phast
         virtual double compute_pulse_accommodation(const size_t t, const FiberStats &stats) = 0;
 
         virtual std::shared_ptr<Decay> randomize(RandomGenerator &rng) = 0;
+
+        virtual bool is_historical() const {return false;}
     };
 
     namespace original
@@ -54,6 +56,8 @@ namespace phast
                   cache_(cache)
             {
             }
+
+            bool is_historical() const override {return true;}
 
             void setup(const PulseTrain &pt) override
             {

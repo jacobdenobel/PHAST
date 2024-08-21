@@ -12,11 +12,6 @@ using namespace phast;
 
 void define_common(py::module &m)
 {
-#ifdef HASTBB
-    m.attr("CAN_THREAD") = true;
-#else
-    m.attr("CAN_THREAD") = false;
-#endif
     py::class_<Pulse>(m, "Pulse")
         .def(py::init<double, size_t, size_t>())
         .def_readonly("amplitude", &Pulse::amplitude)
@@ -99,34 +94,34 @@ void define_common(py::module &m)
              { return "<RefractoryPeriod abs: " + std::to_string(r.absolute.mu) + ", rel:" + std::to_string(r.relative.mu) + ">"; });
 
     py::class_<FiberStats>(m, "FiberStats")
-        .def(py::init<size_t, int>(), py::arg("n_max") = 100, py::arg("fiber_id") = 1)
+        .def(py::init<int>(), py::arg("fiber_id") = 1)
         .def_property_readonly("spikes", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_spikes();
+                                   const auto v = p.spikes;
                                    return py::array(v.size(), v.data()); })
         .def_property_readonly("pulse_times", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_pulse_times();
+                                   const auto v = p.pulse_times;
                                    return py::array(v.size(), v.data()); })
         .def_property_readonly("stochastic_threshold", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_stochastic_threshold();
+                                   const auto v = p._stochastic_threshold;
                                    return py::array(v.size(), v.data()); })
         .def_property_readonly("refractoriness", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_refractoriness();
+                                   const auto v = p._refractoriness;
                                    return py::array(v.size(), v.data()); })
         .def_property_readonly("accommodation", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_accommodation();
+                                   const auto v = p._accommodation;
                                    return py::array(v.size(), v.data()); })
         .def_property_readonly("adaptation", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_adaptation();
+                                   const auto v = p._adaptation;
                                    return py::array(v.size(), v.data()); })
         .def_property_readonly("scaled_i_given", [](const FiberStats &p)
                                {
-                                   const auto v = p.get_scaled_i_given();
+                                   const auto v = p.scaled_i_given;
                                    return py::array(v.size(), v.data()); })
         .def_readonly("n_spikes", &FiberStats::n_spikes)
         .def_readonly("n_pulses", &FiberStats::n_pulses)
@@ -138,10 +133,10 @@ void define_common(py::module &m)
             [](FiberStats &fs)
             {
                 return py::make_tuple(
-                    fs.get_stochastic_threshold(),
-                    fs.get_refractoriness(),
-                    fs.get_accommodation(),
-                    fs.get_adaptation(),
+                    fs._stochastic_threshold,
+                    fs._refractoriness,
+                    fs._accommodation,
+                    fs._adaptation,
                     fs.spikes,
                     fs.electrodes,
                     fs.pulse_times,
@@ -272,7 +267,6 @@ void define_fiber(py::module &m)
                 std::vector<double>,    // spatial_constant
                 std::vector<double>,    // sigma
                 int,                    // fiber_id
-                size_t,                 // n_max
                 double,                 // sigma_rs
                 RefractoryPeriod,       // refractory_period
                 std::shared_ptr<Decay>, // decay
@@ -282,7 +276,6 @@ void define_fiber(py::module &m)
             py::arg("spatial_constant"),
             py::arg("sigma"),
             py::arg("fiber_id"),
-            py::arg("n_max"),
             py::arg("sigma_rs") = 0.0,
             py::arg("refractory_period") = RefractoryPeriod(),
             py::arg("decay") = std::make_shared<original::Powerlaw>(),
@@ -332,11 +325,11 @@ void define_phast(py::module &m)
           py::arg("time_to_ap") = constants::time_to_ap,
           py::arg("store_stats") = false);
 
-    m.def("phast", py::overload_cast<std::vector<Fiber>, const PulseTrain &, const bool, const int, bool>(&phast::phast),
+    m.def("phast", py::overload_cast<std::vector<Fiber>, const PulseTrain &, const bool, const size_t, bool>(&phast::phast),
           py::arg("fibers"),
           py::arg("pulse_train"),
-          py::arg("evaluate_in_parallel") = false,
-          py::arg("generate_trials") = 0,
+          py::arg("evaluate_in_parallel") = true,
+          py::arg("n_trials") = 1,
           py::arg("use_random") = true);
 }
 
@@ -357,10 +350,10 @@ void define_approximated(py::module &m)
     py::class_<LeakyIntegratorDecay, Decay, std::shared_ptr<LeakyIntegratorDecay>>(m, "LeakyIntegratorDecay")
         .def(
             py::init<double, double, double, double, double, double>(),
-            py::arg("adaptation_amplitude") = 1.0,
-            py::arg("accommodation_amplitude") = 1.0,
-            py::arg("adaptation_rate") = 2.0,
-            py::arg("accommodation_rate") = 2.0,
+            py::arg("adaptation_amplitude") = 7.142,
+            py::arg("accommodation_amplitude") = 0.072,
+            py::arg("adaptation_rate") = 19.996,
+            py::arg("accommodation_rate") = 0.014,
             py::arg("sigma_amp") = 0.0,
             py::arg("sigma_rate") = 0.0)
         .def_readonly("adaptation", &LeakyIntegratorDecay::adaptation)

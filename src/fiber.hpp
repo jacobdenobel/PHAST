@@ -27,11 +27,12 @@ namespace phast
 
         std::optional<RandomGenerator> _generator = std::nullopt;
 
+        Fiber() = default;
+
         Fiber(const std::vector<double> &i_det,
               const std::vector<double> &spatial_constant,
               const std::vector<double> &sigma,
               const int fiber_id,
-              const size_t n_max,
               const double sigma_rs,
               const RefractoryPeriod &refractory_period,
               const std::shared_ptr<Decay> decay,
@@ -40,7 +41,7 @@ namespace phast
             : i_det(i_det), spatial_constant(spatial_constant), sigma(sigma), fiber_id(fiber_id),
               stochastic_threshold(0.0), threshold(0.0), refractoriness(0.0), accommodation(0.0), adaptation(0.0),
               sigma_rs(sigma_rs),
-              stats(n_max, fiber_id, store_stats),
+              stats(fiber_id, store_stats),
               refractory_period(refractory_period),
               decay(decay)
         {
@@ -83,7 +84,15 @@ namespace phast
                          refractoriness, adaptation, accommodation,
                          pulse.amplitude * spatial_constant[pulse.electrode],
                          i_det[pulse.electrode],
-                         ap_time);
+                         ap_time,
+                         decay->is_historical()
+                         );
+        }
+
+        void process_pulse_train(const PulseTrain& pulse_train)
+        {
+            for (size_t i = 0; i < pulse_train.n_pulses; i++)
+                process_pulse(pulse_train.get_pulse(i), pulse_train);
         }
 
         Fiber randomize()
@@ -100,7 +109,7 @@ namespace phast
 
             return Fiber(
                 i_det, spatial_constant, new_sigma, fiber_id,
-                stats.spikes.size(), sigma_rs,
+                sigma_rs,
                 refractory_period.randomize(generator()),
                 new_decay,
                 stats.store_stats

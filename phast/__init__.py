@@ -18,7 +18,6 @@ from .phastcpp import (
     Fiber,
     FiberStats,
     GENERATOR,
-    CAN_THREAD,
     HistoricalDecay,
     Period,
     Powerlaw,

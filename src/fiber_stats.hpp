@@ -7,6 +7,7 @@ namespace phast
 
     class FiberStats
     {
+    public:
         std::vector<double> _stochastic_threshold;
         std::vector<double> _refractoriness;
         std::vector<double> _accommodation;
@@ -30,15 +31,15 @@ namespace phast
 
         FiberStats() = default;
 
-        FiberStats(const size_t n_max, const int fiber_id, const bool store_stats = false)
-            : _stochastic_threshold(n_max * store_stats),
-              _refractoriness(n_max * store_stats),
-              _accommodation(n_max * store_stats),
-              _adaptation(n_max * store_stats),
-              spikes(n_max),
-              electrodes(n_max),
-              pulse_times(n_max),
-              scaled_i_given(n_max, 0.),
+        FiberStats(const int fiber_id, const bool store_stats = false)
+            : _stochastic_threshold(),
+              _refractoriness(),
+              _accommodation(),
+              _adaptation(),
+              spikes(),
+              electrodes(),
+              pulse_times(),
+              scaled_i_given(1, 0.0),
               n_spikes(0),
               n_pulses(0),
               fiber_id(fiber_id),
@@ -71,75 +72,40 @@ namespace phast
                     const double accommodation,
                     const double i_given_sp,
                     const double idet,
-                    const size_t ap_time
+                    const size_t ap_time, 
+                    const bool historical_decay
                 )
         {
             bool spiked = i_given > threshold;
             if (spiked)
             {
-                spikes[n_spikes] = ap_time;
-                electrodes[n_spikes] = e;
                 n_spikes++;
+                spikes.push_back(ap_time);
+                if (historical_decay || store_stats)
+                    electrodes.push_back(e);
             }
 
-            if(store_stats) {
-                _stochastic_threshold[n_pulses] = stochastic_threshold;
-                _refractoriness[n_pulses] = refractoriness;
-                _adaptation[n_pulses] = adaptation;
-                _accommodation[n_pulses] = accommodation;
-            }           
-            pulse_times[n_pulses] = t;
-            scaled_i_given[n_pulses] = i_given_sp;
+            if (store_stats) {
+                _stochastic_threshold.push_back(stochastic_threshold);
+                _refractoriness.push_back(refractoriness);
+                _adaptation.push_back(adaptation);
+                _accommodation.push_back(accommodation);
+            }   
+
+            if (historical_decay || store_stats)
+            {
+                if (n_pulses == 0)
+                    scaled_i_given[0] = i_given_sp;
+                else
+                    scaled_i_given.push_back(i_given_sp);
+                pulse_times.push_back(t);
+            }
+
             last_idet = spiked * idet;
             last_igiven = i_given_sp;
             n_pulses++;
         }
 
-        void fit_to_size()
-        {
-            _stochastic_threshold.resize(n_pulses);
-            _refractoriness.resize(n_pulses);
-            _adaptation.resize(n_pulses);
-            _accommodation.resize(n_pulses);
-
-            pulse_times.resize(n_pulses);
-            scaled_i_given.resize(n_pulses);
-
-            spikes.resize(n_spikes);
-            electrodes.resize(n_spikes);
-        }
-
-        std::vector<size_t> get_spikes() const
-        {
-            return std::vector<size_t>(spikes.begin(), spikes.begin() + n_spikes);
-        }
-
-        std::vector<size_t> get_pulse_times() const
-        {
-            return std::vector<size_t>(pulse_times.begin(), pulse_times.begin() + n_pulses);
-        }
-
-        std::vector<double> get_stochastic_threshold() const
-        {
-            return std::vector<double>(_stochastic_threshold.begin(), _stochastic_threshold.begin() + n_pulses);
-        }
-
-        std::vector<double> get_refractoriness() const
-        {
-            return std::vector<double>(_refractoriness.begin(), _refractoriness.begin() + n_pulses);
-        }
-        std::vector<double> get_accommodation() const
-        {
-            return std::vector<double>(_accommodation.begin(), _accommodation.begin() + n_pulses);
-        }
-        std::vector<double> get_adaptation() const
-        {
-            return std::vector<double>(_adaptation.begin(), _adaptation.begin() + n_pulses);
-        }
-        std::vector<double> get_scaled_i_given() const
-        {
-            return std::vector<double>(scaled_i_given.begin(), scaled_i_given.begin() + n_pulses);
-        }
         std::string repr() const
         {
             std::string result = "<FiberStats n_pulses: " + std::to_string(n_pulses) + " n_spikes: " + std::to_string(n_spikes) + ">";
