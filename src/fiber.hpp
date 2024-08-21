@@ -93,6 +93,7 @@ namespace phast
         {
             for (size_t i = 0; i < pulse_train.n_pulses; i++)
                 process_pulse(pulse_train.get_pulse(i), pulse_train);
+            stats.shrink_to_fit();
         }
 
         Fiber randomize()

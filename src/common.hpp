@@ -18,19 +18,24 @@
 #undef VERBOSE
 #undef PROGRESS_BAR
 
-
 #ifdef VERBOSE
 #include <iostream>
 #include <iomanip>
 #ifdef PROGRESS_BAR
 #include "thread_progress.hpp"
-#endif 
-#endif 
-
-
+#endif
+// inline void print_fiber(const phast::Fiber &trial)
+// {
+//     std::cout << "fiber_id: " << trial.fiber_id
+//               << " trial_id: " << trial.stats.trial_id
+//               << " n_pulses: " << trial.stats.n_pulses
+//               << " n_spikes: " << trial.stats.n_spikes << std::endl;
+// }
+#endif
 
 namespace phast
 {
+
     namespace constants
     {
         inline double us = 1e-6;
@@ -45,7 +50,7 @@ namespace phast
 
     struct RandomGenerator
     {
-        std::mt19937_64  _generator;
+        std::mt19937_64 _generator;
         int _seed;
         std::normal_distribution<double> _dist;
         bool use_random;
@@ -59,7 +64,7 @@ namespace phast
         {
             if (use_random)
                 return _dist(_generator);
-            return 0.0;            
+            return 0.0;
         }
 
         void set_seed(const int seed)

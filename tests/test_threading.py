@@ -11,10 +11,10 @@ IDET = np.load(os.path.join(ROOT, "phast", "idet.npy"))
 
 class TestThreading(unittest.TestCase):
     def setUp(self):
-        self.stimulus = phast.ConstantPulseTrain(1, 5000, 1e-3, 1e-6)
+        self.stimulus = phast.ConstantPulseTrain(1, 5000, 1e-2, 1e-6)
         decay = phast.LeakyIntegratorDecay()
         self.fibers = []
-        for fiber_idx in [1000, 1200, 2000]:
+        for fiber_idx in range(0, 3200, 100):
             self.fibers.append(
                 phast.Fiber(
                     i_det=IDET[fiber_idx],
@@ -27,12 +27,12 @@ class TestThreading(unittest.TestCase):
             )
             
     def test_thread_bleeding(self):
-        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 2, evaluate_in_parallel=True)
+        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 10, n_jobs=-1)
         for fs in fiber_stats:
             self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
         
     def test_bleeding(self):
-        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 2, evaluate_in_parallel=False)
+        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 10, n_jobs=1)
         for fs in fiber_stats:
             self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
         

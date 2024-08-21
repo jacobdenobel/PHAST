@@ -47,6 +47,7 @@ namespace phast
               last_igiven(0.),
               store_stats(store_stats)
         {
+            // TODO reserve size
         }
 
         FiberStats(
@@ -76,6 +77,7 @@ namespace phast
                     const bool historical_decay
                 )
         {
+            reserve(256, 2048, historical_decay);
             bool spiked = i_given > threshold;
             if (spiked)
             {
@@ -104,6 +106,44 @@ namespace phast
             last_idet = spiked * idet;
             last_igiven = i_given_sp;
             n_pulses++;
+        }
+
+        void reserve(const int block_size_spikes, const int block_size_pulses, const bool historical_decay) 
+        {
+            if ((spikes.capacity() - n_spikes) == 0)
+            {
+                spikes.reserve(n_spikes + block_size_spikes);
+                if (historical_decay || store_stats)
+                    electrodes.reserve(n_spikes + block_size_spikes);
+            }
+
+            if ((historical_decay || store_stats) && (pulse_times.capacity() - n_pulses) == 0)
+            {
+                if (historical_decay || store_stats) 
+                {
+                    pulse_times.reserve(n_pulses + block_size_pulses);
+                    scaled_i_given.reserve(n_pulses + block_size_pulses);
+                }
+                if (store_stats) 
+                {
+                    _stochastic_threshold.reserve(n_pulses + block_size_pulses);
+                    _refractoriness.reserve(n_pulses + block_size_pulses);
+                    _adaptation.reserve(n_pulses + block_size_pulses);
+                    _accommodation.reserve(n_pulses + block_size_pulses);
+                }
+            }
+        }
+
+        void shrink_to_fit()
+        {
+            _stochastic_threshold.shrink_to_fit();
+            _refractoriness.shrink_to_fit();
+            _accommodation.shrink_to_fit();
+            _adaptation.shrink_to_fit();
+            spikes.shrink_to_fit();
+            electrodes.shrink_to_fit();
+            pulse_times.shrink_to_fit();
+            scaled_i_given.shrink_to_fit();
         }
 
         std::string repr() const

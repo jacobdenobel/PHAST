@@ -26,7 +26,7 @@ class TestPhast(unittest.TestCase):
             decay=decay,
             store_stats=store_stats,
         )
-        return phast.phast([fiber], pt, parallel, n_trials, random)
+        return phast.phast([fiber], pt, -1 if parallel else 1, n_trials, random)
 
     def compare_random(self, decay, n_total_spikes, parallel):
         fiber_stats1 = self.run_phast(decay, True, parallel)

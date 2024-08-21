@@ -306,7 +306,7 @@ void define_phast(py::module &m)
               bool,                                     // use_random = true,
               int,                                      // fiber_id = 0,
               double,                                   // sigma_rs = 0.0,
-              bool,                                     // evaluate_in_parallel = false,
+              int,                                      // n_jobs = -1,
               double,                                   // time_step = constants::time_step
               double,
               bool>(&phast::phast),
@@ -320,15 +320,15 @@ void define_phast(py::module &m)
           py::arg("use_random") = true,
           py::arg("fiber_id") = 0,
           py::arg("sigma_rs") = 0.0,
-          py::arg("evaluate_in_parallel") = false,
+          py::arg("n_jobs") = -1,
           py::arg("time_step") = constants::time_step,
           py::arg("time_to_ap") = constants::time_to_ap,
           py::arg("store_stats") = false);
 
-    m.def("phast", py::overload_cast<std::vector<Fiber>, const PulseTrain &, const bool, const size_t, bool>(&phast::phast),
+    m.def("phast", py::overload_cast<std::vector<Fiber>, const PulseTrain &, const int, const size_t, bool>(&phast::phast),
           py::arg("fibers"),
           py::arg("pulse_train"),
-          py::arg("evaluate_in_parallel") = true,
+          py::arg("n_jobs") = -1,
           py::arg("n_trials") = 1,
           py::arg("use_random") = true);
 }

@@ -183,8 +183,32 @@ class RefractoryPeriod:
     def sigma_relative(self) -> float: ...
 
 def linspace(arg0: float, arg1: float, arg2: int) -> list[float]: ...
+
 @overload
-def phast(i_det: list[float], i_min: list[float], pulse_train: list[list[float]], decay: Decay, relative_spread: float = ..., n_trials: int = ..., refractory_period: RefractoryPeriod = ..., rel, use_random: bool = ..., fiber_id: int = ..., sigma_rs: float = ..., evaluate_in_parallel: bool = ..., time_step: float = ..., time_to_ap: float = ..., store_stats: bool = ...) -> list[FiberStats]: ...
+def phast(
+    i_det: list[float], 
+    i_min: list[float], 
+    pulse_train: list[list[float]], 
+    decay: Decay, 
+    relative_spread: float = ..., 
+    n_trials: int = ..., 
+    refractory_period: RefractoryPeriod = ..., 
+    use_random: bool = ..., 
+    fiber_id: int = ..., 
+    sigma_rs: float = ..., 
+    n_jobs: int = ..., 
+    time_step: float = ..., 
+    time_to_ap: float = ..., 
+    store_stats: bool = ...
+) -> list[FiberStats]: ...
+
 @overload
-def phast(fibers: list[Fiber], pulse_train: AbstractPulseTrain, evaluate_in_parallel: bool = ..., n_trials: int = ..., use_random: bool = ...) -> list[FiberStats]: ...
+def phast(
+    fibers: list[Fiber], 
+    pulse_train: AbstractPulseTrain, 
+    n_jobs: int = ..., 
+    n_trials: int = ..., 
+    use_random: bool = ...
+) -> list[FiberStats]: ...
+
 def set_seed(seed: int) -> None: ...
