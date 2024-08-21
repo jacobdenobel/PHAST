@@ -191,8 +191,8 @@ namespace phast
             std::shared_ptr<Decay> randomize(RandomGenerator &rng) override
             {
                 return std::make_shared<Exponential>(
-                    std::max(0., adaptation_amplitude + (sigma_adaptation_amplitude * rng())),
-                    std::max(0., accommodation_amplitude + (sigma_accommodation_amplitude * rng())),
+                    std::max(constants::min_amp, adaptation_amplitude + (sigma_adaptation_amplitude * rng())),
+                    std::max(constants::min_amp, accommodation_amplitude + (sigma_accommodation_amplitude * rng())),
                     sigma_adaptation_amplitude, sigma_accommodation_amplitude,
                     exponents,
                     memory_size,
@@ -234,8 +234,8 @@ namespace phast
             std::shared_ptr<Decay> randomize(RandomGenerator &rng) override
             {
                 return std::make_shared<Powerlaw>(
-                    std::max(0., adaptation_amplitude + (sigma_adaptation_amplitude * rng())),
-                    std::max(0., accommodation_amplitude + (sigma_accommodation_amplitude * rng())),
+                    std::max(constants::min_amp, adaptation_amplitude + (sigma_adaptation_amplitude * rng())),
+                    std::max(constants::min_amp, accommodation_amplitude + (sigma_accommodation_amplitude * rng())),
                     sigma_adaptation_amplitude, sigma_accommodation_amplitude, memory_size,
                     offset, exp,
                     allow_precomputed_accommodation_,
@@ -265,171 +265,6 @@ namespace phast
                 res[i] = res[i - 1] + step;
             return res;
         }
-
-        /**
-         * @brief Container for xy points
-         *
-         */
-        struct Point
-        {
-            double x, y;
-        };
-
-        /**
-         * @brief Get the x coordinate of a powerlaw function given a y value
-         *
-         * @param y the y value for which to get the x value
-         * @param c the offset of the powerlaw
-         * @param b the exponent of the powerlaw
-         * @return double the x coordinate
-         */
-        inline double pla_x(const double y, const double c, const double b)
-        {
-
-            const double x = std::exp(std::log(y) / b) - c;
-            return x;
-        }
-
-        /**
-         * @brief Get the x,y value for the powerlaw for a given percentage of
-         * decay compared to powerlaw(0)
-         *
-         * @param perc
-         * @param c the offset of the power law
-         * @param b the exponent of the power law
-         * @return Point the x y coordinates
-         */
-        inline Point pla_at_perc(const double perc, const double c, const double b)
-        {
-            const double pla0 = original::powerlaw(0., c, b);
-            const double y = pla0 * perc;
-            const double x = pla_x(y, c, b);
-            return {x, y};
-        }
-        /**
-         * @brief Get the exponential smoothing parameter alpha, such that the
-         * exponential decay curve passes through the points x and y, calculated
-         * for a given time delta dt.
-         *
-         * @param x the x coordinate
-         * @param y the y coordinate
-         * @param scale the scale of the exponential decay curve, for usage with powerlaw,
-         * this should be powerlaw(0)
-         * @param dt the time delta
-         * @return double the value for alpha
-         */
-        inline double alpha_xy(const double x, const double y, const double scale, const double dt)
-        {
-            const double alpha = 1 / (-x / (std::log(y / scale) * dt));
-            return alpha;
-        }
-
-        /**
-         * @brief Get the alpha smoothing parameter from a given tau value
-         *
-         * @param tau the time constant for exponential smoothing
-         * @param dt the time delta
-         * @return double
-         */
-        inline double get_alpha(const double tau, const double dt)
-        {
-            const double alpha = 1 - std::exp(-dt / tau);
-            return alpha;
-        }
-        /**
-         * @brief Get the tau value, which is the time constant for a given value
-         * of alpha
-         * @param alpha the smoothing factor
-         * @param dt the time delta
-         * @return double the time constant tau
-         */
-        inline double get_tau(const double alpha, const double dt)
-        {
-            const double tau = -dt / std::log(1 - alpha);
-            return tau;
-        }
-
-        struct WeightedExponentialSmoothing
-        {
-            std::vector<double> value;
-            std::vector<double> weight;
-            std::vector<double> tau;
-
-            double prev_t;
-            size_t n;
-
-            double offset;
-            double expon;
-            double scale;
-            double pla0;
-
-            WeightedExponentialSmoothing(const double scale = 1.0, const double offset = 0.06, const double expon = -1.5, const size_t n = 10)
-                : value(std::vector<double>(n, 0.0)), weight(std::vector<double>(n, 1.0 / static_cast<double>(n))), tau(std::vector<double>(n)),
-                  prev_t(0), n(n), offset(offset), expon(expon), scale(scale), pla0(original::powerlaw(0.0, offset, expon))
-            {
-                const auto percentiles = linspace(0.01, 0.99, n);
-                for (size_t i = 0; i < n; i++)
-                {
-                    const auto xy = pla_at_perc(1 - percentiles[i], offset, expon);
-                    const auto alpha = alpha_xy(xy.x, xy.y, pla0, 1e-6);
-                    tau[i] = get_tau(alpha, 1e-6);
-                }
-            }
-
-            double operator()(const double s, const double t)
-            {
-                const auto dt = t - prev_t;
-                prev_t = t;
-
-                const double x = s * scale;
-                double res = 0.0;
-                for (size_t i = 0; i < n; i++)
-                {
-                    const auto alpha = get_alpha(tau[i], dt);
-                    value[i] = value[i] + (alpha * (x - value[i]));
-                    res += value[i] * weight[i];
-                }
-                return res;
-            }
-        };
-
-        struct WeightedExponentialSmoothingDecay : Decay
-        {
-            WeightedExponentialSmoothing adaptation;
-            WeightedExponentialSmoothing accommodation;
-
-            double sigma;
-
-            WeightedExponentialSmoothingDecay(
-                const double adaptation_amplitude = 2e-4,
-                const double accommodation_amplitude = 8e-6,
-                const double sigma = 0.0,
-                const double offset = 0.06,
-                const double exp = -1.5,
-                const size_t n = 5) : adaptation(adaptation_amplitude, offset, exp, n),
-                                      accommodation(accommodation_amplitude, offset, exp, n),
-                                      sigma(sigma)
-            {
-            }
-
-            std::shared_ptr<Decay> randomize(RandomGenerator &rng) override
-            {
-                return std::make_shared<WeightedExponentialSmoothingDecay>(
-                    std::max(0., adaptation.scale + (sigma * rng())),
-                    std::max(0., accommodation.scale + (sigma * rng())),
-                    sigma, adaptation.offset, adaptation.expon, adaptation.n);
-            };
-
-            double compute_spike_adaptation(const size_t t, const FiberStats &stats, const std::vector<double> &i_det) override
-            {
-                return adaptation(stats.last_idet, static_cast<double>(t) * time_step);
-            }
-
-            double compute_pulse_accommodation(const size_t t, const FiberStats &stats) override
-            {
-                return accommodation(stats.last_igiven, static_cast<double>(t) * time_step);
-            }
-        };
 
         struct LeakyIntegrator
         {
@@ -477,10 +312,10 @@ namespace phast
             std::shared_ptr<Decay> randomize(RandomGenerator &rng) override
             {
                 return std::make_shared<LeakyIntegratorDecay>(
-                    std::max(0., adaptation.scale + (sigma_rate * rng())),
-                    std::max(0., accommodation.scale + (sigma_rate * rng())),
-                    std::max(0., adaptation.rate + (sigma_rate * rng())), 
-                    std::max(0., accommodation.rate +  (sigma_rate * rng())), 
+                    std::max(constants::min_amp, adaptation.scale + (sigma_rate * rng())),
+                    std::max(constants::min_amp, accommodation.scale + (sigma_rate * rng())),
+                    std::max(constants::min_amp, adaptation.rate + (sigma_rate * rng())), 
+                    std::max(constants::min_amp, accommodation.rate +  (sigma_rate * rng())), 
                     sigma_rate, sigma_amp);
             };
 

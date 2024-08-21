@@ -40,6 +40,7 @@ namespace phast
         inline double us = 1e-6;
         inline double time_step = 1. * us;
         inline double time_to_ap = 0. * us;
+        inline double min_amp = 0.0;
     }
 
     inline int SEED = 69;

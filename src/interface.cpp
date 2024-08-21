@@ -344,52 +344,8 @@ void define_approximated(py::module &m)
 {
     using namespace approximated;
 
-    py::class_<Point>(m, "Point")
-        .def(py::init<double, double>())
-        .def_readwrite("x", &Point::x)
-        .def_readwrite("y", &Point::y);
-
-    py::class_<WeightedExponentialSmoothing>(m, "WeightedExponentialSmoothing")
-        .def(py::init<double, double, double, size_t>(),
-             py::arg("scale") = 1.0,
-             py::arg("offset") = 0.06,
-             py::arg("expon") = -1.5,
-             py::arg("n") = 5)
-
-        .def("__call__", &WeightedExponentialSmoothing::operator(), py::arg("sample"), py::arg("time"))
-        .def_readwrite("value", &WeightedExponentialSmoothing::value)
-        .def_readwrite("weight", &WeightedExponentialSmoothing::weight)
-        .def_readwrite("tau", &WeightedExponentialSmoothing::tau)
-        .def_readwrite("prev_t", &WeightedExponentialSmoothing::prev_t)
-        .def_readwrite("n", &WeightedExponentialSmoothing::n)
-        .def_readwrite("offset", &WeightedExponentialSmoothing::offset)
-        .def_readwrite("expon", &WeightedExponentialSmoothing::expon)
-        .def_readwrite("scale", &WeightedExponentialSmoothing::scale)
-        .def_readwrite("pla0", &WeightedExponentialSmoothing::pla0)
-        .def("__repr__", [](const WeightedExponentialSmoothing &em)
-             { return "<WeightedExponentialSmoothing>"; });
-
-    py::class_<WeightedExponentialSmoothingDecay, Decay, std::shared_ptr<WeightedExponentialSmoothingDecay>>(m, "WeightedExponentialSmoothingDecay")
-        .def(py::init<double, double, double, double, double, size_t>(),
-             py::arg("adaptation_amplitude") = 2e-4,
-             py::arg("accommodation_amplitude") = 8e-6,
-             py::arg("sigma") = 0.0,
-             py::arg("offset") = 0.06,
-             py::arg("exp") = -1.5,
-             py::arg("n") = 5)
-        .def_readonly("adaptation", &WeightedExponentialSmoothingDecay::adaptation)
-        .def_readonly("accommodation", &WeightedExponentialSmoothingDecay::accommodation)
-        .def_readonly("sigma", &WeightedExponentialSmoothingDecay::sigma)
-        .def("__repr__", [](const WeightedExponentialSmoothingDecay &em)
-             { return "<WeightedExponentialSmoothingDecay>"; });
-
     m.def("linspace", &linspace);
-    m.def("pla_x", &pla_x);
-    m.def("pla_at_perc", &pla_at_perc);
-    m.def("alpha_xy", &alpha_xy);
-    m.def("get_alpha", &get_alpha);
-    m.def("get_tau", &get_tau);
-
+ 
     py::class_<LeakyIntegrator>(m, "LeakyIntegrator")
         .def(py::init<double, double>(), py::arg("scale") = 1.0, py::arg("rate") = 2.0)
         .def("__call__", &LeakyIntegrator::operator(), py::arg("c"), py::arg("t"))

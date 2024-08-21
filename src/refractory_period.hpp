@@ -49,7 +49,7 @@ namespace phast
         RefractoryPeriod randomize(RandomGenerator &rng) const
         {
             return RefractoryPeriod(
-                std::max(0., absolute.mu + (sigma_absolute * rng())),
+                std::max(0., absolute.mu + (sigma_absolute * rng())),  
                 std::max(0., relative.mu + (sigma_relative * rng())),
                 sigma_absolute,
                 sigma_relative);
