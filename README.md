@@ -108,7 +108,7 @@ Then finally, we can combine the above to run the ```phast``` model (for a singl
 fiber_stats = phast(
     [fiber],                        # A list of Fiber objects
     pt,                             # A PulseTrain object, either PulseTrain or ConstantPulseTrain
-    evaluate_in_parallel = True,    # Whether to evaluate the experiment in parallel
+    n_jobs = -1,                    # The number of parallel cores to use (-1 is all available)
     n_trials = 1                    # The number of trials to generate for each fiber
     use_random = True               # Whether the experiment should use randomness
 )
