@@ -3,6 +3,8 @@
 #include "fiber.hpp"
 #include <thread>
 
+
+
 namespace phast
 {
     std::vector<FiberStats> phast(
@@ -17,7 +19,8 @@ namespace phast
 
         std::vector<Fiber> trials(n_exper);
         std::vector<std::thread> threads;
-
+        
+        int trial_id = 0;
         for (size_t fi = 0; fi < fibers.size(); fi++)
         {
             auto &fiber = fibers[fi];
@@ -26,17 +29,16 @@ namespace phast
 
             for (size_t t = 0; t < n_trials; t++)
             {
-                const size_t ti = t * (fi + 1);
+                const size_t ti = trial_id++;
 
                 trials[ti] = fiber.randomize();
-                trials[ti].stats.trial_id = ti;
+                trials[ti].stats.trial_id = trial_id;
                 if (SEED != 0 && evaluate_in_parallel)
                     trials[ti]._generator = RandomGenerator(SEED + ti);
 
                 if (!evaluate_in_parallel)
                 {
                     trials[ti].process_pulse_train(pulse_train);
-                    std::cout << 
                     continue;
                 }
                 threads.push_back(std::thread(&Fiber::process_pulse_train, &trials[ti], std::ref(pulse_train)));
@@ -48,7 +50,9 @@ namespace phast
 
         std::vector<FiberStats> result;
         for (const auto &trial : trials)
+        {
             result.push_back(trial.stats);
+        }
         return result;
     }
 

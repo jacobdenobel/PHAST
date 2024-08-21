@@ -26,14 +26,13 @@ class TestThreading(unittest.TestCase):
                 )
             )
             
-    # def test_thread_bleeding(self):
-    #     fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 1, evaluate_in_parallel=True)
-    #     for fs in fiber_stats:
-    #         self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
+    def test_thread_bleeding(self):
+        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 1, evaluate_in_parallel=True)
+        for fs in fiber_stats:
+            self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
         
     def test_bleeding(self):
-        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 1, evaluate_in_parallel=False)
-        print(fiber_stats)
+        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 2, evaluate_in_parallel=False)
         for fs in fiber_stats:
             self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
         

@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#define VERBOSE
+#undef VERBOSE
 #undef PROGRESS_BAR
 
 
