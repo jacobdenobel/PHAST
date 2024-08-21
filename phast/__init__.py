@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 from .phastcpp import (
     Decay,
     HistoricalDecay,
-    WeightedExponentialSmoothing,
-    WeightedExponentialSmoothingDecay,
     LeakyIntegrator,
     LeakyIntegratorDecay,
     Exponential,
@@ -24,7 +22,6 @@ from .phastcpp import (
     HistoricalDecay,
     Period,
     Powerlaw,
-    Point,
     Pulse,
     AbstractPulseTrain,
     PulseTrain,

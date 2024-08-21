@@ -314,8 +314,8 @@ namespace phast
                 return std::make_shared<LeakyIntegratorDecay>(
                     std::max(constants::min_amp, adaptation.scale + (sigma_rate * rng())),
                     std::max(constants::min_amp, accommodation.scale + (sigma_rate * rng())),
-                    std::max(constants::min_amp, adaptation.rate + (sigma_rate * rng())), 
-                    std::max(constants::min_amp, accommodation.rate +  (sigma_rate * rng())), 
+                    std::max(constants::min_rate, adaptation.rate + (sigma_rate * rng())), 
+                    std::max(constants::min_rate, accommodation.rate +  (sigma_rate * rng())), 
                     sigma_rate, sigma_amp);
             };
 
