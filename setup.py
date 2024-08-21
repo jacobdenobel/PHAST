@@ -1,5 +1,4 @@
 import os
-import subprocess
 import platform
 from glob import glob
 from setuptools import setup
@@ -11,6 +10,7 @@ __version__ = "1.0.3"
 ext = Pybind11Extension(
     "phast.phastcpp", glob("src/*cpp"), include_dirs=["src"], cxx_std=17
 )
+
 if platform.system() in ("Linux", "Darwin"):
     os.environ["CC"] = "g++"
     os.environ["CXX"] = "g++"

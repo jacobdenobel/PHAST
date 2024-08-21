@@ -47,13 +47,14 @@ fiber = Fiber(
     spatial_constant: np.ndarray = ...,
     sigma: np.ndarray = ...,
     fiber_id: int = ...,
-    n_max: int = ...,
     sigma_rs: float = ...,
     refractory_period: RefractoryPeriod = ...,
-    decay: Decay = ...
+    decay: Decay = ...,
+    store_stats: bool = False
 )
 ```
-Here ```i_det, spatial_constant, sigma```, are all vectors of length number of electrodes, which should match the number of electrodes in the ```PulseTrain``` used in stimulation. For ```i_det```, this defines the deteriministic threshold after which the fiber spikes, for a pulse from a given electrode. The ```spatial_constant``` defines an electrode specific spatial constant, which is used to scale stimulation. The ```sigma``` parameter is another electrode specific parameter, which is the relative spread per ```i_det```, i.e. ```relative_spread * i_det```. ```fiber_id``` encodes a unique identifier, specified by the used to attach to the fiber. ```n_max``` is used for storing statistics, and should be the number of pulses in the experiment. ```sigma_rs``` is used for stochasticy between trials. ```RefractoryPeriod``` is a parameter wrapper for handling both absolute and relative refractoriness. It can be defined as follows, and if not given explicitly to the ```Fiber```, the following default values are used:
+Here ```i_det, spatial_constant, sigma```, are all vectors of length number of electrodes, which should match the number of electrodes in the ```PulseTrain``` used in stimulation. For ```i_det```, this defines the deteriministic threshold after which the fiber spikes, for a pulse from a given electrode. The ```spatial_constant``` defines an electrode specific spatial constant, which is used to scale stimulation. The ```sigma``` parameter is another electrode specific parameter, which is the relative spread per ```i_det```, i.e. ```relative_spread * i_det```. ```fiber_id``` encodes a unique identifier, specified by the used to attach to the fiber. ```sigma_rs``` is used for stochasticy between trials. ```store_stats``` defines whether all statistics should be stored, such as the refractoriness at each time step. This defaults to False, and should be used with caution, as this *significantly increases memory usage*.
+```RefractoryPeriod``` is a parameter wrapper for handling both absolute and relative refractoriness. It can be defined as follows, and if not given explicitly to the ```Fiber```, the following default values are used:
 
 ```python
 ref = RefractoryPeriod(
@@ -103,14 +104,16 @@ decay = LeakyIntegratorDecay(
 
 ### phast
 Then finally, we can combine the above to run the ```phast``` model (for a single fiber):
-```
+```python
 fiber_stats = phast(
-    [fiber],    # A list of Fiber objects
-    pt,         # A PulseTrain object, either PulseTrain or ConstantPulseTrain
-    ...
+    [fiber],                        # A list of Fiber objects
+    pt,                             # A PulseTrain object, either PulseTrain or ConstantPulseTrain
+    evaluate_in_parallel = True,    # Whether to evaluate the experiment in parallel
+    n_trials = 1                    # The number of trials to generate for each fiber
+    use_random = True               # Whether the experiment should use randomness
 )
 ```
-This yields a list of ```FiberStats``` objects which contains information about the experiment, such as the occurence of spikes (e.g.```fiber_stats[0].spikes```), or other statistics. 
+This yields a list of ```FiberStats``` objects which contains information about the experiment, such as the occurence of spikes (e.g.```fiber_stats[0].spikes```), or other statistics, when ```store_stats``` has been enabled. In order to get consitent results when enabling randomness i.e. when ```use_random = True```, a proper seed should be set, using ```phast.set_seed(seed_value)```, similar to how one would use ```np.random.seed```.
 
 
 
