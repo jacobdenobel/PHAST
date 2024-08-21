@@ -14,7 +14,7 @@ ext = Pybind11Extension(
 if platform.system() in ("Linux", "Darwin"):
     os.environ["CC"] = "g++"
     os.environ["CXX"] = "g++"
-    ext._add_cflags(["-O3"])
+    ext._add_cflags(["-O3", "-pthread"])
 else:
     ext._add_cflags(["/O2"])
 

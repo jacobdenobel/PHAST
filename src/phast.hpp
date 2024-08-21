@@ -30,12 +30,13 @@ namespace phast
 
                 trials[ti] = fiber.randomize();
                 trials[ti].stats.trial_id = ti;
-                if (SEED   && evaluate_in_parallel)
+                if (SEED != 0 && evaluate_in_parallel)
                     trials[ti]._generator = RandomGenerator(SEED + ti);
 
                 if (!evaluate_in_parallel)
                 {
                     trials[ti].process_pulse_train(pulse_train);
+                    std::cout << 
                     continue;
                 }
                 threads.push_back(std::thread(&Fiber::process_pulse_train, &trials[ti], std::ref(pulse_train)));
