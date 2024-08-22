@@ -271,7 +271,7 @@ void define_fiber(py::module &m)
             py::arg("fiber_id"),
             py::arg("sigma_rs") = 0.0,
             py::arg("refractory_period") = RefractoryPeriod(),
-            py::arg("decay") = std::make_shared<original::Powerlaw>(),
+            py::arg("decay") = std::make_shared<approximated::LeakyIntegratorDecay>(),
             py::arg("store_stats") = false)
         .def_readwrite("i_det", &Fiber::i_det)
         .def_readwrite("spatial_constant", &Fiber::spatial_constant)
@@ -400,8 +400,8 @@ PYBIND11_MODULE(phastcpp, m)
 {
     define_common(m);
     define_decay(m);
-    define_fiber(m);
     define_approximated(m);
+    define_fiber(m);
     define_phast(m);
     define_neurogram(m);
 }
