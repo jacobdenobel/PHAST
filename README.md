@@ -115,6 +115,25 @@ fiber_stats = phast(
 ```
 This yields a list of ```FiberStats``` objects which contains information about the experiment, such as the occurence of spikes (e.g.```fiber_stats[0].spikes```), or other statistics, when ```store_stats``` has been enabled. In order to get consitent results when enabling randomness i.e. when ```use_random = True```, a proper seed should be set, using ```phast.set_seed(seed_value)```, similar to how one would use ```np.random.seed```.
 
+### Creating Neurograms
+We include a helper to easily aggregate ```FiberStats``` data into neurograms in matrix form. To do this, the following can be used:
+```python
+neurogram = Neurogram(
+    fiber_stats, 
+    bin_size: float,    # The required binsize of the neurogram, every spike falling in the bin is summed
+    duration: float,    # The duration of the experiment, i.e. duration of the stimulus
+    time_step: float    # The time step of the epxeriment, must be the same as stimulus.time_step
+)
+```
+We provide the following plotting utility to easiliy visualize these neurograms:
+```python
+fig, ax = plt.subplots()
+plot_neurogram(
+    neurogram,
+    ax=ax,      # Optional
+    fig=fig     # Optional
+)
+```
 
 
 ## Citation
