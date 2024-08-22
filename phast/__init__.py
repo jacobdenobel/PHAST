@@ -24,6 +24,7 @@ from .phastcpp import (
     Pulse,
     AbstractPulseTrain,
     PulseTrain,
+    Neurogram,
     ConstantPulseTrain,
     RandomGenerator,
     Period,
@@ -295,3 +296,30 @@ def plot_fiber_stats(fiber_stats):
     axes[-1].grid()
 
     axes[-1].set_title("stochastic threshold")
+
+
+def plot_neurogram(ng: Neurogram, ax=None, fig=None) -> None:
+    """Plotting utility for phast.Neurogram objects
+
+    Parameters
+    ----------
+    ng: phast.Neurogram
+        The neurogram
+    ax: matplotlib.axes = None
+        Optional matplotlib axes object
+    fig: matplotlib.Figure = None
+        Optional matplotlib Figure object
+
+    """
+
+    t = np.arange(0, ng.duration, ng.binsize)
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(15, 6))
+
+    img = ax.pcolormesh(
+        t, ng.fiber_ids, ng.data, cmap="inferno", vmin=ng.data.min(), vmax=ng.data.max()
+    )
+    ax.set_xlabel("time [s]")
+    ax.set_ylabel("fiber id")
+    fig.colorbar(img, ax=ax)

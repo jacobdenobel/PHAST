@@ -152,5 +152,4 @@ namespace phast
             return result;
         }
     };
-
 }

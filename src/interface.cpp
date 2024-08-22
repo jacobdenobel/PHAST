@@ -17,13 +17,9 @@ void define_common(py::module &m)
         .def_readonly("amplitude", &Pulse::amplitude)
         .def_readonly("time", &Pulse::time)
         .def_readonly("electrode", &Pulse::electrode)
-        .def("__repr__", [](const Pulse& p) {
-            return "<Pulse " 
-            + std::to_string(p.amplitude) + "A (t: " 
-            + std::to_string(p.time) + " e: "      
-            + std::to_string(p.electrode) + ")>";
-        });
-    
+        .def("__repr__", [](const Pulse &p)
+             { return "<Pulse " + std::to_string(p.amplitude) + "A (t: " + std::to_string(p.time) + " e: " + std::to_string(p.electrode) + ")>"; });
+
     py::class_<PulseTrain, std::shared_ptr<PulseTrain>>(m, "AbstractPulseTrain")
         .def_readonly("t_max", &PulseTrain::t_max)
         .def_readonly("n_electrodes", &PulseTrain::n_electrodes)
@@ -61,11 +57,10 @@ void define_common(py::module &m)
             py::init<double, double, double, double, double, double>(),
             py::arg("duration"),
             py::arg("rate"),
-            py::arg("amplitude"),            
+            py::arg("amplitude"),
             py::arg("time_step") = constants::time_step,
             py::arg("time_to_ap") = constants::time_to_ap,
-            py::arg("sigma_ap") = 0.0
-        )
+            py::arg("sigma_ap") = 0.0)
         .def_readonly("pulse_interval", &ConstantPulseTrain::pulse_interval)
         .def_readonly("amplitude", &ConstantPulseTrain::amplitude)
         .def("get_pulse", &ConstantPulseTrain::get_pulse);
@@ -224,7 +219,7 @@ void define_decay(py::module &m)
 
     py::class_<original::Exponential, original::HistoricalDecay, std::shared_ptr<original::Exponential>>(m, "Exponential")
         .def(
-            py::init<double, double, double, double, original::Exponential::Exponents, size_t, bool, bool, std::vector<double>>(), 
+            py::init<double, double, double, double, original::Exponential::Exponents, size_t, bool, bool, std::vector<double>>(),
             py::arg("adaptation_amplitude") = 0.01,
             py::arg("accommodation_amplitude") = 0.0003,
             py::arg("sigma_adaptation_amplitude") = 0.0,
@@ -233,14 +228,13 @@ void define_decay(py::module &m)
             py::arg("memory_size") = 0,
             py::arg("allow_precomputed_accommodation") = false,
             py::arg("cached_decay") = false,
-            py::arg("cache") = std::vector<double>()
-        )
+            py::arg("cache") = std::vector<double>())
         .def_readonly("exponents", &original::Exponential::exponents)
         .def("__repr__", [](const original::Exponential &e)
              { return "<Exponential #" + std::to_string(e.exponents.size()) + ">"; });
 
     py::class_<original::Powerlaw, original::HistoricalDecay, std::shared_ptr<original::Powerlaw>>(m, "Powerlaw")
-        .def(py::init<double, double, double, double,  double, double, size_t, bool, bool, std::vector<double>>(),
+        .def(py::init<double, double, double, double, double, double, size_t, bool, bool, std::vector<double>>(),
              py::arg("adaptation_amplitude") = 2e-4,
              py::arg("accommodation_amplitude") = 8e-6,
              py::arg("sigma_adaptation_amplitude") = 0.0,
@@ -250,8 +244,7 @@ void define_decay(py::module &m)
              py::arg("memory_size") = 0,
              py::arg("allow_precomputed_accommodation") = false,
              py::arg("cached_decay") = false,
-             py::arg("cache") = std::vector<double>()
-             )
+             py::arg("cache") = std::vector<double>())
         .def_readonly("offset", &original::Powerlaw::offset)
         .def_readonly("exp", &original::Powerlaw::exp)
         .def("__repr__", [](const original::Powerlaw &e)
@@ -338,7 +331,7 @@ void define_approximated(py::module &m)
     using namespace approximated;
 
     m.def("linspace", &linspace);
- 
+
     py::class_<LeakyIntegrator>(m, "LeakyIntegrator")
         .def(py::init<double, double>(), py::arg("scale") = 1.0, py::arg("rate") = 2.0)
         .def("__call__", &LeakyIntegrator::operator(), py::arg("c"), py::arg("t"))
@@ -350,16 +343,57 @@ void define_approximated(py::module &m)
     py::class_<LeakyIntegratorDecay, Decay, std::shared_ptr<LeakyIntegratorDecay>>(m, "LeakyIntegratorDecay")
         .def(
             py::init<double, double, double, double, double, double>(),
-            py::arg("adaptation_amplitude") = 7.142,
-            py::arg("accommodation_amplitude") = 0.072,
-            py::arg("adaptation_rate") = 19.996,
-            py::arg("accommodation_rate") = 0.014,
+            py::arg("adaptation_amplitude") = 2,
+            py::arg("accommodation_amplitude") = 2,
+            py::arg("adaptation_rate") = 4,
+            py::arg("accommodation_rate") = 4,
             py::arg("sigma_amp") = 0.0,
             py::arg("sigma_rate") = 0.0)
         .def_readonly("adaptation", &LeakyIntegratorDecay::adaptation)
         .def_readonly("accommodation", &LeakyIntegratorDecay::accommodation)
         .def_readonly("sigma_amp", &LeakyIntegratorDecay::sigma_amp)
         .def_readonly("sigma_rate", &LeakyIntegratorDecay::sigma_rate);
+}
+
+template<typename T>
+py::array_t<T> create_2d_numpy_array(const std::vector<std::vector<T>> &vec)
+{
+    // Get the dimensions of the input vector
+    size_t rows = vec.size();
+    size_t cols = vec.empty() ? 0 : vec[0].size();
+
+    // Allocate a new numpy array
+    py::array_t<T> result({rows, cols});
+
+    // Get a pointer to the data in the numpy array
+    T *result_ptr = static_cast<T *>(result.request().ptr);
+
+    // Copy the data from the vector to the numpy array
+    for (size_t i = 0; i < rows; ++i)
+    {
+        for (size_t j = 0; j < cols; ++j)
+        {
+            result_ptr[i * cols + j] = vec[i][j];
+        }
+    }
+
+    return result;
+}
+
+void define_neurogram(py::module &m)
+{
+    py::class_<Neurogram>(m, "Neurogram")
+        .def(
+            py::init<std::vector<FiberStats>, double, double, double>(),
+            py::arg("fiber_stats"),
+            py::arg("binsize"),
+            py::arg("duration"),
+            py::arg("time_step"))
+        .def_readonly("binsize", &Neurogram::binsize_)
+        .def_readonly("duration", &Neurogram::duration_)
+        .def_readonly("fiber_ids", &Neurogram::fiber_ids_)
+        .def_property_readonly("data", [](Neurogram &self)
+                               { return create_2d_numpy_array(self.data_); });
 }
 
 PYBIND11_MODULE(phastcpp, m)
@@ -369,4 +403,5 @@ PYBIND11_MODULE(phastcpp, m)
     define_fiber(m);
     define_approximated(m);
     define_phast(m);
+    define_neurogram(m);
 }

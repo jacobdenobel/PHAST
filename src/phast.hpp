@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fiber.hpp"
+#include "neurogram.hpp"
 #include "thread_pool.hpp"
 
 
