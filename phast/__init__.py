@@ -34,7 +34,15 @@ from .phastcpp import (
     set_seed,
 )
 
-I_DET = os.path.join(os.path.realpath(os.path.dirname(__file__)), "idet.npy")
+DATA_DIR = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(__file__))), "data")
+I_DET = os.path.join(DATA_DIR, "idet.npy")
+sound_dir = os.path.join(DATA_DIR, "sounds")
+
+sounds = {
+    x[:-4]: os.path.join(sound_dir, x)
+    for x in os.listdir(sound_dir)
+    if x.endswith(".wav")
+}
 
 
 def generate_stimulus(

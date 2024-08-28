@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import phast
 
-DATA_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "data"))
+DATA_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"))
 
 
 class TestProblem(unittest.TestCase):

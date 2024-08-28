@@ -33,11 +33,16 @@ setup(
     packages=["phast"],
     package_data={
         "phast": [
-            "phast/idet.npy",
+            "data/idet.npy",
         ],
     },
     zip_safe=False,
     version=__version__,
-    install_requires=["matplotlib>=3.3.4", "numpy>=1.19.2"],
+    install_requires=[
+        "matplotlib>=3.3.4", 
+        "numpy>=1.19.2", 
+        "librosa>=0.10.0", 
+        "scipy>=1.14.0"
+    ],
     include_package_data=True,
 )

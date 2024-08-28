@@ -6,7 +6,7 @@ import numpy as np
 import phast
 
 ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
-IDET = np.load(os.path.join(ROOT, "phast", "idet.npy"))
+IDET = np.load(os.path.join(ROOT, "data", "idet.npy"))
 
 
 class TestThreading(unittest.TestCase):
