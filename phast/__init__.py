@@ -373,4 +373,4 @@ def ab_end_to_end(
 
     fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
     ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
-    return ng
+    return audio_signal, pulse_train, ng

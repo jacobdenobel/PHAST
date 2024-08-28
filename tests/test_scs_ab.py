@@ -33,7 +33,7 @@ class TestPackage(unittest.TestCase):
     def test_end_to_end_cs(self):
         sound, sr = librosa.load(phast.SOUNDS["defineit"], sr=8000)
         tp = phast.load_df120()
-        ng = phast.ab_end_to_end(
+        _, _, ng = phast.ab_end_to_end(
             tp, audio_signal=sound, audio_fs=sr, current_steering=True
         )
         self.assertEqual(ng.data.shape[0], 3200)
@@ -41,7 +41,7 @@ class TestPackage(unittest.TestCase):
 
     def test_end_to_end_no_cs(self):
         tp = phast.load_df120()
-        ng = phast.ab_end_to_end(
+        _, _, ng = phast.ab_end_to_end(
             tp, wav_file=phast.SOUNDS["defineit"], current_steering=False
         )
         self.assertEqual(ng.data.shape[0], 3200)
