@@ -34,15 +34,14 @@ from .phastcpp import (
     set_seed,
 )
 
-DATA_DIR = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(__file__))), "data")
-I_DET = os.path.join(DATA_DIR, "idet.npy")
-sound_dir = os.path.join(DATA_DIR, "sounds")
+from .threshold_profile import (
+    ThresholdProfile,
+    ElectrodeConfiguration,
+    FiberType,
+    load_df120,
+)
 
-sounds = {
-    x[:-4]: os.path.join(sound_dir, x)
-    for x in os.listdir(sound_dir)
-    if x.endswith(".wav")
-}
+from .constants import DATA_DIR, SOUNDS, SOUND_DIR, I_DET
 
 
 def generate_stimulus(
@@ -184,7 +183,7 @@ def wrap_stimulus(
 def spike_times(fiber_stats: List[FiberStats]) -> np.ndarray:
     if not any(fiber_stats):
         return np.array([])
-    
+
     time_step = fiber_stats[0].time_step
     if not isinstance(fiber_stats, Iterable):
         return fiber_stats.spikes * time_step

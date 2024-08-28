@@ -3,9 +3,6 @@ import unittest
 import numpy as np
 import phast
 
-DATA_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"))
-
-
 class TestProblem(unittest.TestCase):
     def setUp(self):
         self.config = {
@@ -20,8 +17,8 @@ class TestProblem(unittest.TestCase):
             "rs": 0.06,
             "sigma_rs": 0.04,
         }
-        self.pulse_train = np.load(os.path.join(DATA_DIR, "pulse_train_121.npy"))
-        self.i_det = np.load(os.path.join(DATA_DIR, "I_det_121.npy"))
+        self.pulse_train = np.load(os.path.join(phast.DATA_DIR, "pulse_train_121.npy"))
+        self.i_det = np.load(os.path.join(phast.DATA_DIR, "I_det_121.npy"))
 
     def test_problem(self):
         stimulus = phast.PulseTrain(pulse_train=self.pulse_train, time_step=18e-6)

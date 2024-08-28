@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from phast import sounds
+from phast import SOUNDS
 from phast.scs import ab as abt
 
 TOTAL_INJECTED_CURRENT = 3.6952946437
@@ -17,7 +17,7 @@ class TestPackage(unittest.TestCase):
         **kwargs,
     ):
         name = "tone_1kHz"
-        pulse_train, audio_signal = abt.wav_to_electrodogram(sounds[name], **kwargs)
+        pulse_train, audio_signal = abt.wav_to_electrodogram(SOUNDS[name], **kwargs)
         self.assertEqual(pulse_train.shape[0], expected_n_channels)
         self.assertEqual(pulse_train.shape[1], 111090)
         self.assertAlmostEqual(np.abs(pulse_train).sum(), expected_output)

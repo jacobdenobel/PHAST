@@ -11,12 +11,10 @@ from . import noise_reduction
 from . import post_filterbank
 from . import mapping
 from . import electrodogram
-# from . import vocoder
+from . import vocoder
 from . import audiomixer
 from . import audio_ramp
 from . import utils
-
-
 
 
 
