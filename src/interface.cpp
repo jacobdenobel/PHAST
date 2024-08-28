@@ -90,10 +90,9 @@ void define_common(py::module &m)
              { return "<RefractoryPeriod abs: " + std::to_string(r.absolute.mu) + ", rel:" + std::to_string(r.relative.mu) + ">"; });
 
     py::class_<FiberStats>(m, "FiberStats")
-        .def(py::init<int, bool>(), 
-            py::arg("fiber_id") = 1, 
-            py::arg("store_stats") = false 
-        )
+        .def(py::init<int, bool>(),
+             py::arg("fiber_id") = 1,
+             py::arg("store_stats") = false)
         .def_property_readonly("spikes", [](const FiberStats &p)
                                {
                                    const auto v = p.spikes;
@@ -287,9 +286,18 @@ void define_fiber(py::module &m)
             py::arg("refractory_period") = RefractoryPeriod(),
             py::arg("decay") = std::make_shared<approximated::LeakyIntegratorDecay>(),
             py::arg("store_stats") = false)
-        .def_readwrite("i_det", &Fiber::i_det)
-        .def_readwrite("spatial_constant", &Fiber::spatial_constant)
-        .def_readwrite("sigma", &Fiber::sigma)
+        .def_property_readonly("i_det", [](const Fiber &p)
+                               {
+                                   const auto v = p.i_det;
+                                   return py::array(v.size(), v.data()); })
+        .def_property_readonly("spatial_constant", [](const Fiber &p)
+                               {
+                                   const auto v = p.spatial_constant;
+                                   return py::array(v.size(), v.data()); })
+        .def_property_readonly("sigma", [](const Fiber &p)
+                               {
+                                   const auto v = p.sigma;
+                                   return py::array(v.size(), v.data()); })
         .def_readonly("threshold", &Fiber::threshold)
         .def_readonly("stats", &Fiber::stats)
         .def_readonly("decay", &Fiber::decay)
@@ -369,7 +377,7 @@ void define_approximated(py::module &m)
         .def_readonly("sigma_rate", &LeakyIntegratorDecay::sigma_rate);
 }
 
-template<typename T>
+template <typename T>
 py::array_t<T> create_2d_numpy_array(const std::vector<std::vector<T>> &vec)
 {
     // Get the dimensions of the input vector
@@ -400,8 +408,7 @@ void define_neurogram(py::module &m)
         .def(
             py::init<std::vector<FiberStats>, double>(),
             py::arg("fiber_stats"),
-            py::arg("binsize")
-        )
+            py::arg("binsize"))
         .def_readonly("binsize", &Neurogram::binsize_)
         .def_readonly("duration", &Neurogram::duration_)
         .def_readonly("fiber_ids", &Neurogram::fiber_ids_)

@@ -1,7 +1,7 @@
 import os
 import platform
 from glob import glob
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
@@ -30,12 +30,7 @@ setup(
     description="Phenomological Adaptive STochastic auditory nerve fiber model",
     long_description=description,
     long_description_content_type="text/markdown",
-    packages=["phast"],
-    package_data={
-        "phast": [
-            "data/*.npy",
-        ],
-    },
+    packages=find_packages(),
     zip_safe=False,
     version=__version__,
     install_requires=[

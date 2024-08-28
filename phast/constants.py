@@ -1,7 +1,7 @@
 import os
 
 DATA_DIR = os.path.join(
-    os.path.realpath(os.path.dirname(os.path.dirname(__file__))), "data"
+    os.path.realpath(os.path.dirname(__file__)), "data"
 )
 I_DET = os.path.join(DATA_DIR, "idet.npy")
 SOUND_DIR = os.path.join(DATA_DIR, "sounds")

@@ -14,21 +14,16 @@ from . import electrodogram
 from . import vocoder
 from . import audiomixer
 from . import audio_ramp
-from . import utils
+from .defaults import virtual_channel_frequencies
 
 
-
-# perhaps we can get some data on which electrode array the patients have and such? Or too few people?
-# overview of system: https://www.youtube.com/watch?v=6Xq29_ci6Ko&t=596s
-# according to link: Fs = 17400 Hz
-# (So Nyquist frequency = 8700 Hz)
-# frequency resolution = 68 Hz
-# Maximum channel stimulation rate (CSR) = 2899 Hz, but elsewhere in the article they say its 2320 Hz?
 def wav_to_electrodogram(
-    wav_file: str,
-    apply_audiomixer=True,
+    wav_file: str = None,
+    audio_signal: np.ndarray = None,
+    audio_fs: int = None,
+    apply_audiomixer=False,
     virtual_channels=True,
-    charge_balanced=True,
+    charge_balanced=False,
     n_rep: int = 1,
     **kwargs,
 ):
@@ -36,24 +31,32 @@ def wav_to_electrodogram(
     Parameters
     ----------
         wav_file: str
-            path to a .wav file to process
-        apply_audiomixer: bool = True
+            path to a .wav file
+        audio_signal:  np.ndarray
+            sound wave
+        audio_fs: int
+            input sample rate of audio signal
+        apply_audiomixer: bool = False
             Whether to apply the audio mixer routine
         virtual_channels: bool = True
             Whether to output virtual channels, default AB is false
-        charge_balanced: bool = True
+        charge_balanced: bool = False
             Whether to make the final pulse train charge balanced
         **kwargs: dict
             any keyword argument for any of the subroutines used in this function
-            
+
     Returns
     -------
         np.ndarray, np.ndarray
-            pulse_train, audio_signal           
-    
+            pulse_train, audio_signal
+
     """
-    audio_signal, *_ = frontend.read_wav(wav_file, **kwargs)
-    
+
+    if wav_file is not None:
+        audio_signal, *_ = frontend.read_wav(wav_file, **kwargs)
+    else:
+        audio_signal = frontend.process_stim(audio_signal, audio_fs, **kwargs)
+
     audio_signal = np.tile(audio_signal, n_rep)
 
     if apply_audiomixer:
@@ -99,15 +102,15 @@ def wav_to_electrodogram(
 
     # Create carrier function with period of 1/peak_freq, maximum depends on implant's maximal stimulation rate
     carrier, audio_idx = post_filterbank.carrier_synthesis(peak_freq, **kwargs)
-    
+
     signal = mapping.f120(carrier, signal, weights, audio_idx, **kwargs)
 
     pulse_train = electrodogram.f120(
-        signal, 
-        weights=weights[:, audio_idx], 
-        virtual_channels=virtual_channels, 
+        signal,
+        weights=weights[:, audio_idx],
+        virtual_channels=virtual_channels,
         charge_balanced=charge_balanced,
-        **kwargs
-    )  
-    
+        **kwargs,
+    )
+
     return pulse_train, audio_signal

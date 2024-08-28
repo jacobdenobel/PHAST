@@ -67,7 +67,7 @@ class CosineSquaredRamp(AudioRamp):
 
 
 def apply_ramp_type(
-    audio_signal, ramp_type=None, Fs=17400, ramp_duration=0.05, **kwargs
+    audio_signal, ramp_type="cs", Fs=17400, ramp_duration=0.01, **kwargs
 ):
     if ramp_type is None:
         return audio_signal

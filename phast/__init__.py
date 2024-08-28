@@ -42,7 +42,7 @@ from .threshold_profile import (
 )
 
 from .constants import DATA_DIR, SOUNDS, SOUND_DIR, I_DET
-
+from .scs import ab
 
 def generate_stimulus(
     duration: float = 0.4,
@@ -335,3 +335,42 @@ def plot_neurogram(ng: Neurogram, ax=None, fig=None) -> None:
     ax.set_xlabel("time [s]")
     ax.set_ylabel("fiber id")
     fig.colorbar(img, ax=ax)
+
+
+def ab_end_to_end(
+    tp: ThresholdProfile = None,
+    wav_file: str = None,
+    audio_signal: np.ndarray = None,
+    audio_fs: int = None,
+    current_steering: bool = True,
+    scaling_factor: float = 1.2,
+    n_trials = 1,
+    selected_fibers: np.ndarray = None,
+    seed: int = 42,
+    n_jobs: int = -1,
+    binsize: float = None,
+    **kwargs
+) -> Neurogram:
+    
+    if tp is None:
+        tp = load_df120()
+
+    pulse_train, audio_signal = ab.wav_to_electrodogram(
+        wav_file, 
+        audio_signal,
+        audio_fs,
+        current_steering=current_steering,
+        M=(tp.electrode.m_level * 1e6) / scaling_factor,
+        T=(tp.electrode.t_level * 1e6) / scaling_factor,
+        pulseWidth=tp.electrode.pw * 1e6,
+        **kwargs,
+    )
+    
+    stimulus = PulseTrain(pulse_train, time_step=tp.electrode.pw)
+    set_seed(seed)
+    fibers = tp.create_fiberset(selected_fibers, current_steering, **kwargs)
+    assert fibers[0].i_det.size == stimulus.n_electrodes
+
+    fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
+    ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
+    return ng

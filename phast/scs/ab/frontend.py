@@ -11,13 +11,26 @@ from scipy.io.wavfile import read as wavread
 import librosa
 
 
-# is multichannel audio surround sound?
-def read_wav(wav_file, fs=17400, i_channel=1, t_start_end=None,  stim_db = None, **kwargs):
-    y, sr = librosa.load(wav_file, sr=fs)
+def normalize_to_db(y, stim_db):
+    return y / np.sqrt(np.mean(np.power(y, 2))) * 20e-6 * pow(10, stim_db / 20)
+
+
+def process_stim(y, audio_fs, stim_db=65.0, **kwargs):
+    if audio_fs is None:
+        raise ValueError("audio_fs should be provided")
+
+    if audio_fs != 17400:
+        y = librosa.resample(y, orig_sr=audio_fs, target_sr=17400)
+
     if stim_db is not None:
-        y = y / np.sqrt(np.mean(np.power(y, 2))) * 20e-6 * pow(10, stim_db / 20)
-    
-    y = y.reshape(1, -1)
+        y = normalize_to_db(y, stim_db)
+        
+    return y.reshape(1, -1)
+
+
+def read_wav(wav_file, fs=17400, i_channel=1, t_start_end=None, stim_db=65.0, **kwargs):
+    y, sr = librosa.load(wav_file, sr=fs)
+    y = process_stim(y, sr, stim_db)
     return y, sr
 
 

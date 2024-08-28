@@ -1,4 +1,5 @@
 import os
+from typing import List
 from dataclasses import dataclass
 from functools import cached_property
 from enum import Enum
@@ -6,6 +7,7 @@ from enum import Enum
 import numpy as np
 
 from .constants import DATA_DIR
+from .phastcpp import Fiber, RefractoryPeriod, LeakyIntegratorDecay
 
 
 class FiberType(Enum):
@@ -70,6 +72,63 @@ class ThresholdProfile:
         return ThresholdProfile(
             i_det, ElectrodeConfiguration(t_level=i_min, m_level=3 * i_min, pw=pw)
         )
+
+    def create_fiberset(
+        self,
+        selected_fibers: np.ndarray = None,
+        current_steering: bool = True,
+        store_stats: bool = False,
+        sigma_rs: float = 0.04,
+        rs: float = 0.06,
+        absolute_refractory_period: float = 4e-4,
+        relative_refractory_period: float = 8e-4,
+        sigma_absolute_refractory_period: float = 0.1e-3,
+        sigma_relative_refractory_period: float = 0.5e-3,
+        accommodation_amplitude: float = 0.072,
+        adaptation_amplitude: float = 7.142,
+        accommodation_rate: float = 0.014,
+        adaptation_rate: float = 19.996,
+        sigma_amp: float = 0.6e-2,
+        sigma_rate: float = 0.6e-2,
+        **kwargs
+    ) -> List[Fiber]:
+
+        if selected_fibers is None:
+            selected_fibers = np.arange(self.n_fibers)
+
+        picker = lambda x: x
+        if not current_steering and self.electrode.cs_enabled:
+            picker = lambda x: x[
+                self.electrode.alpha.size // 2 :: self.electrode.alpha.size
+            ]
+
+        fibers = []
+        for fiber_idx in selected_fibers:
+            fibers.append(
+                Fiber(
+                    i_det=picker(self.i_det[fiber_idx]),
+                    spatial_constant=picker(self.spatial_factor(fiber_idx)),
+                    sigma=picker(self.sigma(fiber_idx, rs)),
+                    sigma_rs=sigma_rs,
+                    fiber_id=fiber_idx,
+                    store_stats=store_stats,
+                    refractory_period=RefractoryPeriod(
+                        absolute_refractory_period,
+                        relative_refractory_period,
+                        sigma_absolute_refractory_period,
+                        sigma_relative_refractory_period,
+                    ),
+                    decay=LeakyIntegratorDecay(
+                        adaptation_amplitude,
+                        accommodation_amplitude,
+                        adaptation_rate,
+                        accommodation_rate,
+                        sigma_amp,
+                        sigma_rate,
+                    ),
+                )
+            )
+        return fibers
 
 
 def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
