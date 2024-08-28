@@ -38,6 +38,6 @@ setup(
     },
     zip_safe=False,
     version=__version__,
-    install_requires=["matplotlib>=3.3.4", "numpy>=1.19.2", "scipy>=1.5.2"],
+    install_requires=["matplotlib>=3.3.4", "numpy>=1.19.2"],
     include_package_data=True,
 )
