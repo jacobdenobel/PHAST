@@ -39,10 +39,9 @@ setup(
     zip_safe=False,
     version=__version__,
     install_requires=[
-        "matplotlib>=3.3.4", 
-        "numpy>=1.19.2", 
-        "librosa>=0.10.0", 
-        "scipy>=1.14.0"
+        "matplotlib", 
+        "numpy", 
+        "librosa", 
     ],
     include_package_data=True,
 )
