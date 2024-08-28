@@ -33,7 +33,7 @@ setup(
     packages=["phast"],
     package_data={
         "phast": [
-            "data/idet.npy",
+            "data/*.npy",
         ],
     },
     zip_safe=False,
