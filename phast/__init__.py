@@ -172,7 +172,11 @@ def wrap_stimulus(
     return pulse_train
 
 
-def spike_times(fiber_stats, time_step=18e-6):
+def spike_times(fiber_stats: list[FiberStats]) -> np.ndarray:
+    if not any(fiber_stats):
+        return np.array([])
+    
+    time_step = fiber_stats[0].time_step
     if not isinstance(fiber_stats, Iterable):
         return fiber_stats.spikes * time_step
     return np.hstack([fs.spikes * time_step for fs in fiber_stats])
@@ -200,9 +204,9 @@ def spike_rate(spike_times, num_bins=None, duration=0.4, binsize=0.05, n_trials=
     return counts / n_trials / binsize
 
 
-def isi(fiber_stats, time_step=18e-6, stack=True):
+def isi(fiber_stats, stack=True):
     def isi_(fs):
-        return np.diff(fs.spikes) * time_step
+        return np.diff(fs.spikes) * fs.time_step
 
     if isinstance(fiber_stats, Iterable):
         data = [isi_(fs) for fs in fiber_stats]
@@ -280,7 +284,7 @@ def plot_fiber_stats(fiber_stats):
     stat_names = ["accommodation", "adaptation", "refractoriness"]
     _, axes = plt.subplots(2, 2, figsize=(15, 8))
     axes = axes.ravel()
-    x = fiber_stats[0].pulse_times
+    x = fiber_stats[0].pulse_times * fiber_stats[0].time_step
 
     for ax, stat in zip(axes, stat_names):
         data = np.vstack([getattr(fs, stat) for fs in fiber_stats])

@@ -40,8 +40,7 @@ namespace phast
             {
                 const size_t ti = trial_id++;
 
-                trials[ti] = fiber.randomize();
-                trials[ti].stats.trial_id = trial_id;
+                trials[ti] = fiber.randomize(trial_id);
                 if (SEED != 0 && n_threads > 1)
                     trials[ti]._generator = RandomGenerator(SEED + ti);
 

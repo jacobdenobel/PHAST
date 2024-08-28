@@ -26,6 +26,8 @@ namespace phast
         size_t n_unique_pulses;
         size_t n_delta_t;
 
+        double duration;
+
         PulseTrain(const size_t t_max, const size_t n_pulses, const size_t n_electrodes,
                    const double time_step = constants::time_step,
                    const double time_to_ap = constants::time_to_ap,
@@ -42,7 +44,8 @@ namespace phast
               n_pulses(n_pulses),
               n_used_electrodes(n_used_electrodes),
               n_unique_pulses(n_unique_pulses),
-              n_delta_t(n_delta_t)
+              n_delta_t(n_delta_t),
+              duration(t_max * time_step)
         {
         }
 
@@ -51,7 +54,7 @@ namespace phast
         std::string repr() const
         {
             std::string result = "<PulseTrain n_pulses: " + std::to_string(n_pulses) + 
-                " duration : " + std::to_string(t_max * time_step) + ">";
+                " duration : " + std::to_string(duration) + ">";
             return result;
         }
     };

@@ -96,7 +96,7 @@ namespace phast
             stats.shrink_to_fit();
         }
 
-        Fiber randomize()
+        Fiber randomize(const int trial_id)
         {
             auto new_sigma = std::vector<double>(sigma.size());
             const double new_rs = std::max(0., (sigma[0] / i_det[0]) + (sigma_rs * generator()()));
@@ -108,13 +108,15 @@ namespace phast
             auto new_decay = decay->randomize(generator());
             new_decay->time_step = decay->time_step;
 
-            return Fiber(
+            auto fiber =  Fiber(
                 i_det, spatial_constant, new_sigma, fiber_id,
                 sigma_rs,
                 refractory_period.randomize(generator()),
                 new_decay,
                 stats.store_stats
             );
+            fiber.stats.time_step = decay->time_step;
+            return fiber;
         }
 
         RandomGenerator &generator()

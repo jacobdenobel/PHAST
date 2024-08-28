@@ -95,10 +95,10 @@ decay = Powerlaw(
 Finally, for the model which uses the leaky integrator, the following decay object needs to be passed:
 ```python
 decay = LeakyIntegratorDecay(
-    adaptation_amplitude: float = 0.01,
-    accommodation_amplitude: float = 0.0003,
-    adaptation_rate: float = 2.0,
-    accommodation_rate: float = 2.0,
+    adaptation_amplitude: float = 7.142,
+    accommodation_amplitude: float = 0.072,
+    adaptation_rate: float = 0.014,
+    accommodation_rate: float = 19.996
 )
 ```
 
@@ -121,10 +121,10 @@ We include a helper to easily aggregate ```FiberStats``` data into neurograms in
 neurogram = Neurogram(
     fiber_stats, 
     bin_size: float,    # The required binsize of the neurogram, every spike falling in the bin is summed
-    duration: float,    # The duration of the experiment, i.e. duration of the stimulus
-    time_step: float    # The time step of the epxeriment, must be the same as stimulus.time_step
 )
 ```
+This then creates a neurogram matrix, which can be accessed via the ```data``` member, i.e. ```neurogram.data```.
+
 We provide the following plotting utility to easiliy visualize these neurograms:
 ```python
 fig, ax = plt.subplots()

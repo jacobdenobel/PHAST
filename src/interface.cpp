@@ -28,6 +28,7 @@ void define_common(py::module &m)
         .def_readonly("time_to_ap", &PulseTrain::time_to_ap)
         .def_readonly("steps_to_ap", &PulseTrain::steps_to_ap)
         .def_readonly("sigma_ap", &PulseTrain::sigma_ap)
+        .def_readonly("duration", &PulseTrain::duration)
         .def_readwrite("n_used_electrodes", &PulseTrain::n_used_electrodes)
         .def_readonly("n_unique_pulses", &PulseTrain::n_unique_pulses)
         .def_readonly("n_delta_t", &PulseTrain::n_delta_t)
@@ -89,7 +90,10 @@ void define_common(py::module &m)
              { return "<RefractoryPeriod abs: " + std::to_string(r.absolute.mu) + ", rel:" + std::to_string(r.relative.mu) + ">"; });
 
     py::class_<FiberStats>(m, "FiberStats")
-        .def(py::init<int>(), py::arg("fiber_id") = 1)
+        .def(py::init<int, bool>(), 
+            py::arg("fiber_id") = 1, 
+            py::arg("store_stats") = false 
+        )
         .def_property_readonly("spikes", [](const FiberStats &p)
                                {
                                    const auto v = p.spikes;
@@ -122,6 +126,12 @@ void define_common(py::module &m)
         .def_readonly("n_pulses", &FiberStats::n_pulses)
         .def_readonly("trial_id", &FiberStats::trial_id)
         .def_readonly("fiber_id", &FiberStats::fiber_id)
+        .def_readonly("last_idet", &FiberStats::last_idet)
+        .def_readonly("last_igiven", &FiberStats::last_igiven)
+        .def_readonly("last_t", &FiberStats::last_t)
+        .def_readonly("store_stats", &FiberStats::store_stats)
+        .def_readonly("time_step", &FiberStats::time_step)
+        .def_property_readonly("duration", &FiberStats::duration)
         .def("__eq__", &FiberStats::operator==)
         .def("__repr__", &FiberStats::repr)
         .def(py::pickle(
@@ -142,6 +152,8 @@ void define_common(py::module &m)
                     fs.fiber_id,
                     fs.last_idet,
                     fs.last_igiven,
+                    fs.last_t,
+                    fs.time_step,
                     fs.store_stats);
             },
             [](py::tuple t)
@@ -161,7 +173,9 @@ void define_common(py::module &m)
                 fs.fiber_id = t[11].cast<int>();
                 fs.last_idet = t[12].cast<double>();
                 fs.last_igiven = t[13].cast<double>();
-                fs.store_stats = t[14].cast<bool>();
+                fs.last_t = t[14].cast<size_t>();
+                fs.time_step = t[15].cast<double>();
+                fs.store_stats = t[16].cast<bool>();
                 return fs;
             }));
 
@@ -384,11 +398,10 @@ void define_neurogram(py::module &m)
 {
     py::class_<Neurogram>(m, "Neurogram")
         .def(
-            py::init<std::vector<FiberStats>, double, double, double>(),
+            py::init<std::vector<FiberStats>, double>(),
             py::arg("fiber_stats"),
-            py::arg("binsize"),
-            py::arg("duration"),
-            py::arg("time_step"))
+            py::arg("binsize")
+        )
         .def_readonly("binsize", &Neurogram::binsize_)
         .def_readonly("duration", &Neurogram::duration_)
         .def_readonly("fiber_ids", &Neurogram::fiber_ids_)

@@ -26,6 +26,8 @@ namespace phast
 
         double last_idet;
         double last_igiven;
+        size_t last_t;
+        double time_step;
 
         bool store_stats;
 
@@ -45,6 +47,8 @@ namespace phast
               fiber_id(fiber_id),
               last_idet(0.),
               last_igiven(0.),
+              last_t(0),
+              time_step(0),
               store_stats(store_stats)
         {
             // TODO reserve size
@@ -57,12 +61,16 @@ namespace phast
             const std::vector<double>& ad
         ): _stochastic_threshold(t), _refractoriness(r), _accommodation(ac), _adaptation(ad) {} 
 
+        double duration() const {
+            return time_step * last_t;
+        }
+        
         bool operator==(const FiberStats &other)
         {
             // This is an oversimplification
             return n_spikes == other.n_spikes && n_pulses == other.n_pulses;
         }
-
+        
         void update(const size_t t,
                     const size_t e,
                     const double i_given,
@@ -105,6 +113,7 @@ namespace phast
 
             last_idet = spiked * idet;
             last_igiven = i_given_sp;
+            last_t = ap_time;
             n_pulses++;
         }
 

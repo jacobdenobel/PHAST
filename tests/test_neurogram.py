@@ -31,7 +31,7 @@ class TestThreading(unittest.TestCase):
                 )
             )
         fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials=10, n_jobs=-1)
-        ng = phast.Neurogram(fiber_stats, 1e-3, self.duration, self.time_step)
+        ng = phast.Neurogram(fiber_stats, 1e-3)
         return ng
 
     def test_neurogram(self):

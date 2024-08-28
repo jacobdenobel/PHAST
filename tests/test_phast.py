@@ -68,7 +68,7 @@ class TestPhast(unittest.TestCase):
             fiber_id=1200,
             sigma_rs=0.000,
         )
-        fiber2 = fiber.randomize()
+        fiber2 = fiber.randomize(1)
 
         self.assertTrue(np.all(np.array(fiber2.sigma) == fiber.sigma))
 
@@ -83,7 +83,7 @@ class TestPhast(unittest.TestCase):
             fiber_id=1200,
             sigma_rs=sigma,
         )
-        fiber2 = fiber.randomize()
+        fiber2 = fiber.randomize(1)
         self.assertFalse(np.all(np.array(fiber2.sigma) == fiber.sigma))
 
     def test_rng(self):
