@@ -3,6 +3,7 @@
 import os
 import warnings
 from collections.abc import Iterable
+from typing import List
 from time import time
 from functools import wraps
 
@@ -172,7 +173,7 @@ def wrap_stimulus(
     return pulse_train
 
 
-def spike_times(fiber_stats: list[FiberStats]) -> np.ndarray:
+def spike_times(fiber_stats: List[FiberStats]) -> np.ndarray:
     if not any(fiber_stats):
         return np.array([])
     
