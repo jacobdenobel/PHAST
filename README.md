@@ -7,7 +7,7 @@ This repository contains an archive implementation of a phenomenological auditor
 pip install phastc
 ```
 
-The model has been tested and built for python versions 3.6-11, and is compiled using g++ for MacOS and Linux and msvc on Windows. 
+The model has been tested and built for python versions 3.9-12, and is compiled using g++ for MacOS and Linux and msvc on Windows. 
 
 
 ## Running PHAST
