@@ -25,6 +25,7 @@ class ElectrodeConfiguration:
     greenwood_f: np.ndarray = None
     position: np.ndarray = None
     pw: float = 18e-6
+    ipg: float = 0.0
     alpha: np.ndarray = None
 
     @property
@@ -90,7 +91,7 @@ class ThresholdProfile:
         adaptation_rate: float = 19.996,
         sigma_amp: float = 0.6e-2,
         sigma_rate: float = 0.6e-2,
-        **kwargs
+        **kwargs,
     ) -> List[Fiber]:
 
         if selected_fibers is None:
@@ -182,8 +183,8 @@ def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
     TIa = data["TIa"][ft.value] * 1e-3
     TIb = data["TIb"][ft.value] * 1e-3
     i_det = TIa + TIb
-    i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
     i_det = np.flip(i_det[:, : i_det.shape[1], :].reshape(-1, i_det.shape[2]).T, axis=0)
+    i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
 
     tp = ThresholdProfile(
         i_det=i_det,
@@ -194,3 +195,105 @@ def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
         fiber_type=ft,
     )
     return tp
+
+
+class ArrayName(Enum):
+    ContourAdvance = "CA_Avg"
+    SlimStraight = "SS_Avg"
+
+
+def load_cochlear(
+    version: str = "18_0",
+    fiber_type: Fiber = FiberType.HEALTHY,
+    array_name: ArrayName = ArrayName.SlimStraight,
+    cochlea: int = 0,  # I assume the data is ordered, ask for original data
+):
+    """Elektrodes in datastructuur TPD zijn volgens Cochlear-conventie genummerd, dus van basaal (e=1) naar apicaal (e=22)
+        TPD(c,a,m)  : Data van cochlea c, array a, morfologie m
+
+                    a=1 -> Nucleus ContourAdvance (Cochlear, peri-modiolair gepositioneerd; 22 electrodes)
+                    a=2 -> Nucleus SlimStraight (Cochlear, lateraal gepositioneerd; 22 electrodes)
+
+                    m=1 -> intacte vezels / m=2 -> vezels met verkorte eindknoop / m=3 -> dendrietloze vezels
+
+        TPD().Ae(e)   : Insertiehoek van elektrode e (in graden vanaf het ronde venster)
+        TPD().Fe(e)   : Geschatte geluidsfrequentie elektrode e op basis van de Greenwood-functie (in kHz)
+        TPD().Le(e)   : Positie elektrode e gemeten in mm langs het basilair membraan (van basaal naar apicaal)
+
+        TPD().An(f)   : Cochleaire hoek van perifere uiteinde vezel f langs het basilair membraan (in graden vanaf het ronde venster)
+        TPD().Fn(f)   : Greenwood-frequentie vezel f (in kHz)
+        TPD().Ln(f)   : Positie vezel f gemeten in mm langs het basilair membraan (van basaal naar apicaal)
+
+        TPD().TI(e,f) : Drempel van vezel f, bij stimulatie op elektrode e (in mA)
+
+        TPD().T(e)    : T-level van elektrode e
+        TPD().M(e)    : M-level van elektrode e
+    """
+
+    assert version in ("18_0", "25_8")
+
+    fname = os.path.join(DATA_DIR, f"cochlear{version}.npy")
+    data = np.load(fname, allow_pickle=True).item()
+    
+    morphology = ("DoubleCableA_UT10", "DoubleCableA", "DoubleCableA_NoDendrite", )[fiber_type.value]
+    
+    mask = np.logical_and(
+        np.array(data["ArrayName"]) == array_name.value,
+        np.array(data["Morph"]) == morphology,
+    )
+    idx, *_ = np.where(mask)
+    assert mask.sum() == 5
+    idx = idx[cochlea]
+
+    pw, ipg = map(float, version.split("_"))
+    elec = ElectrodeConfiguration(
+        m_level=np.flip(data["M"][idx] * 1e-3),
+        t_level=np.flip(data["T"][idx] * 1e-3),
+        insertion_angle=np.flip(data["Ae"][idx]),
+        greenwood_f=np.flip(data["Fe"][idx] * 1e3),
+        position=np.flip(data["Le"][idx]),
+        pw=pw * 1e-6,
+        ipg=ipg * 1e-6
+    )
+    i_det = (data['TI'][idx] * 1e-3).T
+    i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
+    
+    tp = ThresholdProfile(
+        i_det=i_det,
+        electrode=elec,
+        angle=np.flip(data["An"][idx]),
+        position=np.flip(data["Ln"][idx]),
+        greenwood_f=np.flip(data["Fn"][idx] * 1e3),
+        fiber_type=fiber_type,
+    )
+    return tp
+    
+
+
+def plot_tp():
+    tp = load_cochlear()
+    tp2 = load_df120()
+    f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 10))
+    
+    ax1.pcolormesh(tp.electrode.greenwood_f, tp.greenwood_f,  tp.i_det)
+    ax2.pcolormesh(np.interp(np.linspace(0, 16, 135), range(16), tp2.electrode.greenwood_f), tp2.greenwood_f, tp2.i_det)
+    
+    ax3.pcolormesh(tp.electrode.position, tp.position,  tp.i_det)
+    ax4.pcolormesh(np.interp(np.linspace(0, 16, 135), range(16), tp2.electrode.position), tp2.position, tp2.i_det)
+    
+    
+    for ax in (ax1, ax2):
+        ax.set_ylabel("fiber frequency")
+        ax.set_xlabel("electrode frequency")
+        ax.set_yscale("symlog")
+        ax.set_xscale("symlog")
+        
+    for ax in (ax3, ax4):
+        ax.set_ylabel("fiber position")
+        ax.set_xlabel("electrode position")
+        
+    ax1.set_title("ACE")
+    ax2.set_title("AB")
+    plt.tight_layout()
+    plt.show()
+    

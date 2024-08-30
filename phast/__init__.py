@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from typing import List
 from time import time
 from functools import wraps
+from dataclasses import fields
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -39,10 +40,12 @@ from .threshold_profile import (
     ElectrodeConfiguration,
     FiberType,
     load_df120,
+    load_cochlear,
 )
 
 from .constants import DATA_DIR, SOUNDS, SOUND_DIR, I_DET
-from .scs import ab
+from .scs import ab, ace
+
 
 def generate_stimulus(
     duration: float = 0.4,
@@ -337,26 +340,26 @@ def plot_neurogram(ng: Neurogram, ax=None, fig=None) -> None:
     fig.colorbar(img, ax=ax)
 
 
-def ab_end_to_end(
-    tp: ThresholdProfile = None,
+def ab_e2e(
     wav_file: str = None,
+    tp: ThresholdProfile = None,
     audio_signal: np.ndarray = None,
     audio_fs: int = None,
     current_steering: bool = True,
     scaling_factor: float = 1.2,
-    n_trials = 1,
+    n_trials=1,
     selected_fibers: np.ndarray = None,
     seed: int = 42,
     n_jobs: int = -1,
     binsize: float = None,
-    **kwargs
+    **kwargs,
 ) -> Neurogram:
-    
+
     if tp is None:
         tp = load_df120()
 
     pulse_train, audio_signal = ab.wav_to_electrodogram(
-        wav_file, 
+        wav_file,
         audio_signal,
         audio_fs,
         current_steering=current_steering,
@@ -365,7 +368,7 @@ def ab_end_to_end(
         pulseWidth=tp.electrode.pw * 1e6,
         **kwargs,
     )
-    
+
     stimulus = PulseTrain(pulse_train, time_step=tp.electrode.pw)
     set_seed(seed)
     fibers = tp.create_fiberset(selected_fibers, current_steering, **kwargs)
@@ -373,4 +376,43 @@ def ab_end_to_end(
 
     fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
     ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
+    return audio_signal, pulse_train, ng
+
+
+def ace_e2e(
+    wav_file: str = None,
+    tp: ThresholdProfile = None,
+    # audio_signal: np.ndarray = None,
+    # audio_fs: int = None,
+    scaling_factor: float = 1.,
+    n_trials=1,
+    selected_fibers: np.ndarray = None,
+    seed: int = 42,
+    n_jobs: int = -1,
+    binsize: float = None,
+    **kwargs,
+) -> Neurogram:
+
+    if tp is None:
+        tp = load_cochlear()
+
+    ace_p_names = [f.name for f in fields(ace.Parameters)]
+    ace_kwargs = {x: y for x, y in kwargs.items() if x in ace_p_names}
+
+    pulse_train, parameters, audio_signal = ace.ace(
+        wav_file,
+        phase_width_us=int(tp.electrode.pw * 1e6),
+        phase_gap_us=int(tp.electrode.ipg * 1e6),
+        lower_levels=(tp.electrode.t_level * 1e4) / scaling_factor,
+        upper_levels=(tp.electrode.m_level * 1e4) / scaling_factor,
+        **ace_kwargs,
+    )
+    
+    stimulus = PulseTrain(pulse_train, time_step=parameters.period_us * 1e-6)
+    set_seed(seed)
+    fibers = tp.create_fiberset(selected_fibers, **kwargs)
+    assert fibers[0].i_det.size == stimulus.n_electrodes
+    fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
+    ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
+    
     return audio_signal, pulse_train, ng

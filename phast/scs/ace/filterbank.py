@@ -5,8 +5,6 @@ from numpy.lib.stride_tricks import as_strided
 from .parameters import Parameters
 
 
-
-
 def buffer(signal, n, p=0):
     """Buffer a signal into overlapping frames with padding."""
     step = n - p
@@ -23,27 +21,27 @@ def buffer(signal, n, p=0):
     return frames
 
 
-def filterbank(
-    signal: np.ndarray,
-    parameters: Parameters,
-    block_length: int = 128,
-) -> np.ndarray:
-    parameters.window = scipy.signal.windows.hann(block_length, False)
+def filterbank(signal: np.ndarray, parameters: Parameters) -> np.ndarray:
+    parameters.window = scipy.signal.windows.hann(parameters.block_length, False)
     buffer_opt = []
 
     block_shift = int(
-        np.ceil(parameters.rate.audio_sample_rate_Hz / parameters.rate.analysis_rate_Hz)
+        np.ceil(parameters.audio_sample_rate_Hz / parameters.analysis_rate_Hz)
     )
-    parameters.rate.analysis_rate_Hz = (
-        parameters.rate.audio_sample_rate_Hz / block_shift
+    parameters.analysis_rate_Hz = (
+        parameters.audio_sample_rate_Hz / block_shift
     )
 
-    num_bins = int(block_length / 2 + 1)
+    num_bins = int(parameters.block_length / 2 + 1)
 
-    parameters.bin_freq_Hz = parameters.rate.audio_sample_rate_Hz / block_length
+    parameters.bin_freq_Hz = (
+        parameters.audio_sample_rate_Hz / parameters.block_length
+    )
     parameters.bin_freqs_Hz = parameters.bin_freq_Hz * np.arange(num_bins)
 
-    buff = buffer(signal, block_length, block_length - block_shift)
+    buff = buffer(
+        signal, parameters.block_length, parameters.block_length - block_shift
+    )
     spectrum = np.fft.fft(buff * parameters.window)[:, :num_bins]
     return spectrum
 
@@ -74,15 +72,20 @@ FFT_BAND_BINS = {
 }
 
 
+def envelope_method(spectrum: np.ndarray, parameters: Parameters):
+    if parameters.envelope_method == "power sum":
+        return power_sum_envelope(spectrum, parameters)
+            
+    # TODO: We still need default vector sum method
+    raise NotImplementedError()
+
+
 def power_sum_envelope(
     spectrum: np.ndarray,
     parameters: Parameters,
-    equalise: bool = True,
-    block_length: int = 128,
 ):
-
     num_bins = spectrum.shape[1]
-    num_bands = parameters.rate.num_bands
+    num_bands = parameters.num_bands
     band_bins = np.array(FFT_BAND_BINS[num_bands]).T
 
     # Weights matrix for combining FFT bins into bands:
@@ -100,8 +103,8 @@ def power_sum_envelope(
     bin = 2  # We always ignore bins 0 (DC) & 1.
     for band, width in enumerate(band_bins):
         width = band_bins[band]
-        weights[band, bin : (bin + width)] = 1 
-        if equalise:
+        weights[band, bin : (bin + width)] = 1
+        if parameters.equalise:
             weights[band] = weights[band] / P[min(width, 3) - 1]
         bin += width
 
@@ -110,7 +113,7 @@ def power_sum_envelope(
     crossover_freqs_Hz = cum_num_bins * parameters.bin_freq_Hz
     band_widths_Hz = np.diff(crossover_freqs_Hz)
     best_freqs_Hz = crossover_freqs_Hz[:num_bands] + (band_widths_Hz / 2)
-    
+
     power_spectrum = (spectrum * np.conj(spectrum)).real
     power_spectrum = np.sqrt(weights @ power_spectrum.T)
     return power_spectrum

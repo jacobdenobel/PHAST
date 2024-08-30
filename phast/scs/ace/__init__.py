@@ -30,18 +30,32 @@ p = Append_process(p, @LGF_proc);
 p = Append_process(p, @Collate_into_sequence_proc)
 """
 
-from dataclasses import dataclass
-
-from .parameters import AmplitudeParameters, RateParameters, Parameters
+from .parameters import Parameters
 from .audio import process_audio, freedom_mic
 from .agc import agc
-from .filterbank import filterbank, power_sum_envelope
+from .filterbank import filterbank, power_sum_envelope, envelope_method
 from .utility import gain, resample, reject_smallest
 from .lgf import lgf
-from .mapping import collate_into_sequence
+from .mapping import collate_into_sequence, channel_mapping
 
 
-def ace(wav_file: str):
-    parameters = Parameters()
-    audio, *_ = process_audio(wav_file, parameters)
-    breakpoint()
+def ace(wav_file: str, parameters: Parameters = None, **kwargs):
+	if parameters is None:
+ 		parameters = Parameters(**kwargs)
+   
+	audio_signal, *_ = process_audio(wav_file, parameters)
+	signal = freedom_mic(audio_signal, parameters)
+	signal = agc(signal, parameters)
+	spectrum = filterbank(signal, parameters)        
+
+	channel_power = envelope_method(spectrum, parameters)
+	channel_power = gain(channel_power, parameters)
+	channel_power = resample(channel_power, parameters)
+	channel_power = reject_smallest(channel_power, parameters)
+	channel_power = lgf(channel_power, parameters)
+	channels, magnitudes = collate_into_sequence(channel_power, parameters)
+	electrode_seq = channel_mapping(channels, magnitudes, parameters)
+	pulse_train = electrode_seq.to_pulse_table()
+
+	return pulse_train, parameters, audio_signal
+ 

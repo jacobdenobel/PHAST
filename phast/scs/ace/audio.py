@@ -18,7 +18,7 @@ def rms(x: np.ndarray) -> float:
 
 
 def process_audio(wav_file: str, parameters: Parameters) -> np.ndarray:
-    signal, sr = librosa.load(wav_file, sr=parameters.rate.audio_sample_rate_Hz)
+    signal, sr = librosa.load(wav_file, sr=parameters.audio_sample_rate_Hz)
 
     # Sound pressure level is based on RMS value:
     audio_rms_dB = to_dB(rms(signal))
@@ -27,12 +27,12 @@ def process_audio(wav_file: str, parameters: Parameters) -> np.ndarray:
     # Therefore, the unscaled audio corresponds to the following sound pressure level:
     audio_dB_SPL = (
         audio_rms_dB
-        + parameters.amp.reference_dB_SPL
+        + parameters.reference_dB_SPL
         + to_dB(np.sqrt(2))
     )
 
     # Calculate the calibration gain that will produce the desired sound pressure level:
-    calibration_gain_dB = parameters.amp.audio_dB_SPL - audio_dB_SPL
+    calibration_gain_dB = parameters.audio_dB_SPL - audio_dB_SPL
 
     # Apply gain:
     calibration_gain = from_dB(calibration_gain_dB)
@@ -48,13 +48,12 @@ def process_audio(wav_file: str, parameters: Parameters) -> np.ndarray:
 def freedom_mic(
     signal: np.ndarray,
     parameters: Parameters,
-    mic_order: int = 128,
-    directivity: str = "dir",
+   
 ) -> np.ndarray:
-    calibration_freq_Hz = parameters.rate.audio_sample_rate_Hz / 16
+    calibration_freq_Hz = parameters.audio_sample_rate_Hz / 16
     data = np.load(FAR_DATA, allow_pickle=True).item()
 
-    mag = data[f"{directivity}_mag"]
+    mag = data[f"{parameters.directivity}_mag"]
 
     mag = mag - np.max(mag)
     amplitude = from_dB(mag)
@@ -63,7 +62,7 @@ def freedom_mic(
     amplitude[mag < -50] = 0
 
     # Normalise the frequencies to the Nyquist frequency (fs/2).
-    norm_freq = data["freq"] / (parameters.rate.audio_sample_rate_Hz / 2)
+    norm_freq = data["freq"] / (parameters.audio_sample_rate_Hz / 2)
 
     # Remove any frequencies which are greater than Nyquist
     # & Append Nyquist response (needed for fir2):
@@ -76,14 +75,14 @@ def freedom_mic(
         amplitude = np.r_[0, amplitude]
 
     # Create filter using frequency sampling:
-    mic_numer = scipy.signal.firwin2(mic_order + 1, norm_freq, amplitude)
+    mic_numer = scipy.signal.firwin2(parameters.mic_order + 1, norm_freq, amplitude)
     mic_denom = 1
     # Calculate gain at calibration frequency.
     w, h = scipy.signal.freqz(
         mic_numer,
         mic_denom,
         [calibration_freq_Hz, calibration_freq_Hz * 2],
-        fs=parameters.rate.audio_sample_rate_Hz,
+        fs=parameters.audio_sample_rate_Hz,
     )
     # Add gain so that response at calibration_freq_Hz is 0 dB:
     mic_numer = mic_numer / abs(h[0])

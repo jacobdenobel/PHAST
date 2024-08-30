@@ -7,15 +7,18 @@ def gain(
     channel_power: np.ndarray,
     parameters: Parameters,
 ) -> np.ndarray:
-    gain = from_dB(parameters.amp.gain_dB)
+    gain = from_dB(parameters.gain_dB)
     return channel_power * gain
 
 
 def resample(
-    channel_power: np.ndarray, parameters: Parameters, resample_method: str = "repeat"
+    channel_power: np.ndarray,
+    parameters: Parameters,
 ) -> np.ndarray:
-    if parameters.rate.channel_stim_rate_Hz != parameters.rate.analysis_rate_Hz:
-        raise NotImplementedError
+    if parameters.channel_stim_rate_Hz != parameters.analysis_rate_Hz:
+        print(parameters.resample_method)
+        raise NotImplementedError()
+
     return channel_power
 
 
@@ -25,18 +28,16 @@ def reject_smallest(
 ) -> np.ndarray:
 
     num_bands, num_time_slots = channel_power.shape
-    assert num_bands == parameters.rate.num_bands
+    assert num_bands == parameters.num_bands
 
-    num_rejected = num_bands - parameters.rate.num_selected
+    num_rejected = num_bands - parameters.num_selected
     mask = np.zeros(channel_power.shape, dtype=bool)
 
     for n in range(num_rejected):
-        min_idx = np.argmin(channel_power, axis=0)
+        min_idx = np.nanargmin(channel_power, axis=0)
 
         for t, idx in enumerate(min_idx):
             mask[idx, t] = True
 
-    channel_power[mask] = np.nan
+        channel_power[mask] = np.nan
     return channel_power
-
-

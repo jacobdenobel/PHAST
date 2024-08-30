@@ -2,36 +2,38 @@ import os
 import unittest
 import numpy as np
 
-from phast import SOUNDS 
-from phast.scs import ace
+from phast import SOUNDS, load_cochlear, load_df120, ace, ace_e2e
 
 import matplotlib.pyplot as plt
 
 class TestAce(unittest.TestCase):
-    
-    # def test_amplitude_paramamters(self):
-    #     amp = ace.AmplitudeParameters()
-    #     self.assertAlmostEqual(amp.agc_kneepoint, 0.07933868577)
-    #     self.assertAlmostEqual(amp.gain_dB, 36)
-    #     self.assertAlmostEqual(amp.dynamic_range_dB, 40)
+    def test_e2e(self):
+        wav_file = SOUNDS['asa']
+        ace_e2e(wav_file, some_bull=True)
         
-    # def test_rate_parameters(self):
-    #     rate = ace.RateParameters()
-    #     self.assertEqual(rate.audio_sample_rate_Hz, 15625)
-    #     self.assertEqual(rate.channel_stim_rate_Hz, 976.5625)
-    #     self.assertEqual(rate.analysis_rate_Hz, 976.5625)
-    #     self.assertEqual(rate.block_shift, 16)
-    #     self.assertEqual(rate.num_bands, 22)
-    #     self.assertEqual(rate.num_selected, 12)
-    #     self.assertEqual(rate.interval_length, 1)
-    #     self.assertEqual(rate.implant_stim_rate_Hz, 11718.75)
-    #     self.assertEqual(rate.period_us, 85.4)
+        
+    
+    # def test_parameters(self):
+    #     p = ace.Parameters()
+    #     self.assertAlmostEqual(p.agc_kneepoint, 0.07933868577)
+    #     self.assertAlmostEqual(p.gain_dB, 36)
+    #     self.assertAlmostEqual(p.dynamic_range_dB, 40)
+        
+    #     self.assertEqual(p.audio_sample_rate_Hz, 15625)
+    #     self.assertEqual(p.channel_stim_rate_Hz, 976.5625)
+    #     self.assertEqual(p.analysis_rate_Hz, 976.5625)
+    #     self.assertEqual(p.block_shift, 16)
+    #     self.assertEqual(p.num_bands, 22)
+    #     self.assertEqual(p.num_selected, 12)
+    #     self.assertEqual(p.interval_length, 1)
+    #     self.assertEqual(p.implant_stim_rate_Hz, 11718.75)
+    #     self.assertEqual(p.period_us, 85.4)
         
     # def test_audio(self):
     #     wav_file = SOUNDS['asa']
     #     parameters = ace.Parameters()
     #     audio, (sr, audio_rms_dB, audio_dB_SPL, calibration_gain, ) = ace.process_audio(wav_file, parameters)
-    #     self.assertEqual(sr, parameters.rate_parameters.audio_sample_rate_Hz)
+    #     self.assertEqual(sr, parameters.audio_sample_rate_Hz)
     #     self.assertAlmostEqual(audio_rms_dB, -18.493992)
     #     self.assertEqual(audio_dB_SPL, 65.0)
     #     self.assertAlmostEqual(calibration_gain, 0.18801149)
@@ -51,26 +53,37 @@ class TestAce(unittest.TestCase):
     #     signal = ace.freedom_mic(signal, parameters)
     #     signal = ace.agc(signal, parameters)
     #     self.assertAlmostEqual(signal.sum(), -.2375905)
+
+    
+    # def test_ace(self):
+    #     wav_file = SOUNDS['asa']
+    #     parameters = ace.Parameters()
+    #     signal, _ = ace.process_audio(wav_file, parameters)
+    #     signal = ace.freedom_mic(signal, parameters)
+    #     signal = ace.agc(signal, parameters)
+    #     spectrum = ace.filterbank(signal, parameters)        
+    #     self.assertAlmostEqual(np.abs(spectrum).sum(), 2746.54787571626)
         
-    def test_filterbank(self):
-        wav_file = SOUNDS['asa']
-        parameters = ace.Parameters()
-        signal, _ = ace.process_audio(wav_file, parameters)
-        signal = ace.freedom_mic(signal, parameters)
-        signal = ace.agc(signal, parameters)
-        spectrum = ace.filterbank(signal, parameters)        
-        # self.assertAlmostEqual(np.abs(spectrum).sum(), 2735.721887637)
+    #     channel_power = ace.envelope_method(spectrum, parameters)
+    #     channel_power = ace.gain(channel_power, parameters)
+    #     channel_power = ace.resample(channel_power, parameters)
+    #     channel_power = ace.reject_smallest(channel_power, parameters)
+    #     self.assertEqual( np.isfinite(channel_power).sum(), 11604)
+
+    #     channel_power = ace.lgf(channel_power, parameters)
+    #     channels, magnitudes = ace.collate_into_sequence(channel_power, parameters)
+    #     self.assertEqual(channels.size, magnitudes.size)
+    #     self.assertEqual(channels.size, 11604)
         
-        channel_power = ace.power_sum_envelope(spectrum, parameters)
-        # TODO: We still need default vector sum method
+    #     electrode_seq = ace.channel_mapping(channels, magnitudes, parameters)
+    #     pulse_train = electrode_seq.to_pulse_table()
+    #     self.assertEqual(pulse_train.shape, (22, 11604))
+    #     self.assertEqual(pulse_train.max(), 0.01)
+    #     self.assertEqual(pulse_train.min(), 0.0)
+    #     self.assertAlmostEqual(pulse_train.sum(), 61.7435)
         
-        channel_power = ace.gain(channel_power, parameters)
-        channel_power = ace.resample(channel_power, parameters)
-        channel_power = ace.reject_smallest(channel_power, parameters)
-        channel_power = ace.lgf(channel_power, parameters)
-        channels, magnitudes = ace.collate_into_sequence(channel_power, parameters)
-        self.assertEqual(channels.size, magnitudes.size)
-        breakpoint()
+    #     pulse_train2, parameters2, _ = ace.ace(SOUNDS['asa'])
+    #     self.assertTrue((pulse_train == pulse_train2).all())
 
     
     
