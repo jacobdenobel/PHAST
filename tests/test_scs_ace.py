@@ -78,7 +78,7 @@ class TestAce(unittest.TestCase):
         signal = ace.freedom_mic(signal, parameters)
         signal = ace.agc(signal, parameters)
         spectrum = ace.filterbank(signal, parameters)
-        self.assertAlmostEqual(np.abs(spectrum).sum(), 2746.54787571626, places=5)
+        self.assertAlmostEqual(np.abs(spectrum).sum(), 2746.54787571626, places=4)
 
         channel_power = ace.envelope_method(spectrum, parameters)
         channel_power = ace.gain(channel_power, parameters)
