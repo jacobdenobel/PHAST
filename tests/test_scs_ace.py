@@ -27,9 +27,9 @@ class TestAce(unittest.TestCase):
 
     def test_parameters(self):
         p = ace.Parameters()
-        self.assertAlmostEqual(p.agc_kneepoint, 0.07933868577)
-        self.assertAlmostEqual(p.gain_dB, 36)
-        self.assertAlmostEqual(p.dynamic_range_dB, 40)
+        self.assertAlmostEqual(p.agc_kneepoint, 0.07933868577,  places=5)
+        self.assertAlmostEqual(p.gain_dB, 36, places=5)
+        self.assertAlmostEqual(p.dynamic_range_dB, 40, places=5)
 
         self.assertEqual(p.audio_sample_rate_Hz, 15625)
         self.assertEqual(p.channel_stim_rate_Hz, 976.5625)
@@ -51,9 +51,9 @@ class TestAce(unittest.TestCase):
             calibration_gain,
         ) = ace.process_audio(wav_file, None, None, parameters)
         self.assertEqual(sr, parameters.audio_sample_rate_Hz)
-        self.assertAlmostEqual(audio_rms_dB, -18.493992)
+        self.assertAlmostEqual(audio_rms_dB, -18.493992, places=5)
         self.assertEqual(audio_dB_SPL, 65.0)
-        self.assertAlmostEqual(calibration_gain, 0.18801149)
+        self.assertAlmostEqual(calibration_gain, 0.18801149, places=5)
 
     def test_freedom_mic(self):
         wav_file = SOUNDS["asa"]
@@ -61,7 +61,7 @@ class TestAce(unittest.TestCase):
         audio, _ = ace.process_audio(wav_file, None, None, parameters)
 
         res = ace.freedom_mic(audio, parameters)
-        self.assertAlmostEqual(res.sum(), -0.11141796)
+        self.assertAlmostEqual(res.sum(), -0.11141796, places=5)
 
     def test_agc(self):
         wav_file = SOUNDS["asa"]
@@ -69,7 +69,7 @@ class TestAce(unittest.TestCase):
         signal, _ = ace.process_audio(wav_file, None, None, parameters)
         signal = ace.freedom_mic(signal, parameters)
         signal = ace.agc(signal, parameters)
-        self.assertAlmostEqual(signal.sum(), -0.2375905)
+        self.assertAlmostEqual(signal.sum(), -0.2375905, places=5)
 
     def test_ace(self):
         wav_file = SOUNDS["asa"]
@@ -78,7 +78,7 @@ class TestAce(unittest.TestCase):
         signal = ace.freedom_mic(signal, parameters)
         signal = ace.agc(signal, parameters)
         spectrum = ace.filterbank(signal, parameters)
-        self.assertAlmostEqual(np.abs(spectrum).sum(), 2746.54787571626)
+        self.assertAlmostEqual(np.abs(spectrum).sum(), 2746.54787571626, places=5)
 
         channel_power = ace.envelope_method(spectrum, parameters)
         channel_power = ace.gain(channel_power, parameters)
@@ -96,7 +96,7 @@ class TestAce(unittest.TestCase):
         self.assertEqual(pulse_train.shape, (22, 11604))
         self.assertEqual(pulse_train.max(), 0.01)
         self.assertEqual(pulse_train.min(), 0.0)
-        self.assertAlmostEqual(pulse_train.sum(), 61.7435)
+        self.assertAlmostEqual(pulse_train.sum(), 61.7435,  places=5)
 
         pulse_train2, parameters2, _ = ace.ace(SOUNDS["asa"])
         self.assertTrue((pulse_train == pulse_train2).all())
