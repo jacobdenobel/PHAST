@@ -405,8 +405,8 @@ def ace_e2e(
         audio_fs,
         phase_width_us=int(tp.electrode.pw * 1e6),
         phase_gap_us=int(tp.electrode.ipg * 1e6),
-        lower_levels=(tp.electrode.t_level * 1e4) / scaling_factor,
-        upper_levels=(tp.electrode.m_level * 1e4) / scaling_factor,
+        lower_levels=(np.flip(tp.electrode.t_level) * 1e4) / scaling_factor,
+        upper_levels=(np.flip(tp.electrode.m_level) * 1e4) / scaling_factor,
         **ace_kwargs,
     )
 

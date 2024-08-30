@@ -185,7 +185,7 @@ def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
     i_det = TIa + TIb
     i_det = np.flip(i_det[:, : i_det.shape[1], :].reshape(-1, i_det.shape[2]).T, axis=0)
     i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
-
+    
     tp = ThresholdProfile(
         i_det=i_det,
         electrode=elec,
@@ -261,7 +261,7 @@ def load_cochlear(
     )
     i_det = (data["TI"][idx] * 1e-3).T
     i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
-
+    i_det = np.flip(i_det, axis=1)
     tp = ThresholdProfile(
         i_det=i_det,
         electrode=elec,
