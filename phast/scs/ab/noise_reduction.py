@@ -5,7 +5,7 @@ Created on Fri Sep  6 10:19:09 2019
 @author: beimx004
 """
 
-# [G_out, A_out, Vn, Vs, Hold] = noiseReductionFunc(initState, A) 
+# [G_out, A_out, Vn, Vs, Hold] = noiseReductionFunc(initState, A)
 #
 # Compute channel-by-channel noise reduction gains.
 #

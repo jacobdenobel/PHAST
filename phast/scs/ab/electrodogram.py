@@ -23,7 +23,7 @@ def f120(
     weights=None,
     virtual_channels=True,
     charge_balanced=True,
-    nDiscreteSteps=9, 
+    nDiscreteSteps=9,
     **kwargs,
 ):
     """
@@ -69,48 +69,49 @@ def f120(
     n_electrodes = 16
 
     pulse_train = np.zeros((n_electrodes, n_samples))
-    
+
     # TODO: this should be the same as nDiscreteSteps
     n_virtual = nDiscreteSteps if kwargs.get("current_steering", True) else 1
-    
+
     if n_virtual == 1:
         pt_v = np.zeros((nChan, n_samples))
     else:
-        n_virtual_channels = (nChan * n_virtual)# - (nChan - 1)
+        n_virtual_channels = nChan * n_virtual  # - (nChan - 1)
         pt_v = np.zeros((n_virtual_channels, n_samples))
         v_weights = np.arange(0, 1.1, 1 / (n_virtual - 1))[::-1]
-    
+
     for iCh in np.arange(nChan):
         phaseOffset = 2 * (channelOrder[iCh] - 1)
         amp1 = ampIn[2 * iCh, :]
         amp2 = ampIn[2 * iCh + 1, :]
-        
-        pulse_train[idxLowEl[iCh], phaseOffset::phasesPerCyc] = amp1 
+
+        pulse_train[idxLowEl[iCh], phaseOffset::phasesPerCyc] = amp1
         pulse_train[idxHighEl[iCh], phaseOffset::phasesPerCyc] = amp2
-        
+
         if n_virtual == 1:
             pt_v[iCh, phaseOffset::phasesPerCyc] = amp1 + amp2
             continue
-        
+
         aw1 = weights[iCh, :] * (amp1 != 0)
-        aw2 = weights[iCh + nChan, : ] * (amp2 != 0)
-        
+        aw2 = weights[iCh + nChan, :] * (amp2 != 0)
+
         for vidx, w1 in enumerate(v_weights):
             v_channel = vidx + ((v_weights.size) * iCh)
             w2 = 1 - w1
             mask = np.logical_and(aw1 == w1, aw2 == w2)
             pt_v[v_channel, phaseOffset::phasesPerCyc][mask] = amp1[mask] + amp2[mask]
 
-
     if virtual_channels:
         pulse_train = pt_v
-    
+
     if charge_balanced:
-        kernel = np.array([-1, 1]) if cathodicFirst else  np.array([1, -1])
+        kernel = np.array([-1, 1]) if cathodicFirst else np.array([1, -1])
         pulse_train = lfilter(kernel, 1, pulse_train)
-                
+
     if outputFs is not None:
-        pulse_train = resample_to_fs(pulse_train, outputFs, n_samples, durIn, pulseWidth)
+        pulse_train = resample_to_fs(
+            pulse_train, outputFs, n_samples, durIn, pulseWidth
+        )
 
     pulse_train *= 1e-6
 
@@ -124,7 +125,7 @@ def resample_to_fs(
     durIn: float,
     pulseWidth: float,
 ) -> np.ndarray:
-    
+
     dtOut = 1 / outputFs
     tPhase = np.arange(nFrameOut) * pulseWidth * 1e-6
     tOut = np.arange(np.floor(durIn / dtOut)) * dtOut

@@ -13,12 +13,14 @@ The simplest usage is through the respective end-to-end functions, which process
     ...
 )
 ```
-and via the following for SpecRes
+and via the following for SpecRes:
 ```python
 (audio_signal, sr), pulse_train, neurogram = phast.ab_e2e(
     phast.SOUNDS['asa'],
     ...
 )
 ```
-Both methods return the analyzed audio signal (```audio_signal```) and corresponding sample rate (```sr```). ```pulse_train``` is a n electrodes x n timesteps matrix of pulse ampltitudes, and ```neurogram``` is a ```Neurogram``` object, for which the ```neurogram.data``` member contains a n fibers x n timesteps matrix of spike counts. 
+Both methods return the analyzed audio signal (```audio_signal```) and corresponding sample rate (```sr```). ```pulse_train``` is a n electrodes x n timesteps matrix of pulse ampltitudes, and ```neurogram``` is a ```Neurogram``` object, for which the ```neurogram.data``` member contains a n fibers x n timesteps matrix of spike counts. Note that both methods take an abritrary number of optional parameters, please see the code for the full description. 
+
+
 

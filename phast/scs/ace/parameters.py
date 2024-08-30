@@ -168,7 +168,7 @@ class Parameters:
         self.period_us = 1e6 * period_tk / self.RF_clock_Hz
 
         if self.lower_levels is None:
-            self.lower_levels = np.ones((self.num_bands, 1)) 
+            self.lower_levels = np.ones((self.num_bands, 1))
             self.upper_levels = 100 * np.ones((self.num_bands, 1))
         else:
             self.lower_levels = self.lower_levels.reshape(self.num_bands, 1)

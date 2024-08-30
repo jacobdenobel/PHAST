@@ -28,15 +28,11 @@ def filterbank(signal: np.ndarray, parameters: Parameters) -> np.ndarray:
     block_shift = int(
         np.ceil(parameters.audio_sample_rate_Hz / parameters.analysis_rate_Hz)
     )
-    parameters.analysis_rate_Hz = (
-        parameters.audio_sample_rate_Hz / block_shift
-    )
+    parameters.analysis_rate_Hz = parameters.audio_sample_rate_Hz / block_shift
 
     num_bins = int(parameters.block_length / 2 + 1)
 
-    parameters.bin_freq_Hz = (
-        parameters.audio_sample_rate_Hz / parameters.block_length
-    )
+    parameters.bin_freq_Hz = parameters.audio_sample_rate_Hz / parameters.block_length
     parameters.bin_freqs_Hz = parameters.bin_freq_Hz * np.arange(num_bins)
 
     buff = buffer(
@@ -75,7 +71,7 @@ FFT_BAND_BINS = {
 def envelope_method(spectrum: np.ndarray, parameters: Parameters):
     if parameters.envelope_method == "power sum":
         return power_sum_envelope(spectrum, parameters)
-            
+
     # TODO: We still need default vector sum method
     raise NotImplementedError()
 

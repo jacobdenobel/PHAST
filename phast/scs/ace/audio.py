@@ -24,13 +24,12 @@ def process_audio(
         signal, sr = librosa.load(wav_file, sr=parameters.audio_sample_rate_Hz)
     else:
         if audio_fs is None:
-            raise ValueError("audio_fs must be provided")            
+            raise ValueError("audio_fs must be provided")
         if audio_signal is None:
-            raise ValueError("audio_signal must be provided")   
+            raise ValueError("audio_signal must be provided")
 
         sr = parameters.audio_sample_rate_Hz
         signal = librosa.resample(audio_signal, orig_sr=audio_fs, target_sr=sr)
-            
 
     # Sound pressure level is based on RMS value:
     audio_rms_dB = to_dB(rms(signal))

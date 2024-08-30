@@ -3,16 +3,14 @@ import numpy as np
 from .parameters import Parameters, from_dB
 
 
-def agc(
-    signal: np.ndarray,
-    parameters: Parameters
-) -> np.ndarray:
+def agc(signal: np.ndarray, parameters: Parameters) -> np.ndarray:
 
     agc_attack_weight = 3.912 / (
         parameters.agc_attack_time_s * parameters.audio_sample_rate_Hz
     )
     agc_release_scaler = from_dB(
-        -parameters.agc_step_dB / (parameters.agc_release_time_s * parameters.audio_sample_rate_Hz)
+        -parameters.agc_step_dB
+        / (parameters.agc_release_time_s * parameters.audio_sample_rate_Hz)
     )
 
     u = signal.copy()
@@ -36,7 +34,9 @@ def agc(
         # Static compression:
         # - infinite compression
         raw_gain = (
-            1.0 if agc_env_state < parameters.agc_kneepoint else parameters.agc_kneepoint / agc_env_state
+            1.0
+            if agc_env_state < parameters.agc_kneepoint
+            else parameters.agc_kneepoint / agc_env_state
         )
 
         # Gain dynamics:
@@ -50,5 +50,5 @@ def agc(
         env_vec[n] = agc_env_state
         gain_vec[n] = agc_gain_state
         raw_gain_vec[n] = raw_gain
-        
+
     return u * gain_vec

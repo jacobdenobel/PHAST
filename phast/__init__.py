@@ -384,7 +384,7 @@ def ace_e2e(
     tp: ThresholdProfile = None,
     audio_signal: np.ndarray = None,
     audio_fs: int = None,
-    scaling_factor: float = 1.,
+    scaling_factor: float = 1.0,
     n_trials=1,
     selected_fibers: np.ndarray = None,
     seed: int = 42,
@@ -401,7 +401,7 @@ def ace_e2e(
 
     pulse_train, parameters, audio_signal = ace.ace(
         wav_file,
-        audio_signal, 
+        audio_signal,
         audio_fs,
         phase_width_us=int(tp.electrode.pw * 1e6),
         phase_gap_us=int(tp.electrode.ipg * 1e6),
@@ -409,14 +409,12 @@ def ace_e2e(
         upper_levels=(tp.electrode.m_level * 1e4) / scaling_factor,
         **ace_kwargs,
     )
-    
+
     stimulus = PulseTrain(pulse_train, time_step=parameters.period_us * 1e-6)
     set_seed(seed)
     fibers = tp.create_fiberset(selected_fibers, **kwargs)
     assert fibers[0].i_det.size == stimulus.n_electrodes
     fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
     ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
-    
+
     return (audio_signal, parameters.audio_sample_rate_Hz), pulse_train, ng
-
-

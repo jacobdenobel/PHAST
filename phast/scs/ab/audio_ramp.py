@@ -18,7 +18,7 @@ class LinearRamp(AudioRamp):
     def __call__(self, audio_signal: np.ndarray, **kwds: Any) -> Any:
         if len(audio_signal.shape) > 1:
             audio_signal = np.squeeze(audio_signal)
-            
+
         ramp_length = int(np.ceil(self.ramp_duration * self.Fs))
         ramp_vector = np.linspace(0, self.ramp_duration, ramp_length)
         ramped_audio_signal = audio_signal.copy()

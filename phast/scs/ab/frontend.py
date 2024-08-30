@@ -24,7 +24,7 @@ def process_stim(y, audio_fs, stim_db=65.0, **kwargs):
 
     if stim_db is not None:
         y = normalize_to_db(y, stim_db)
-        
+
     return y.reshape(1, -1)
 
 

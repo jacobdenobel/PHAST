@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 
 ext = Pybind11Extension(
     "phast.phastcpp", glob("src/*cpp"), include_dirs=["src"], cxx_std=17
