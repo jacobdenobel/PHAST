@@ -17,19 +17,27 @@ def rms(x: np.ndarray) -> float:
     return np.sqrt(np.mean(np.power(x, 2)))
 
 
-def process_audio(wav_file: str, parameters: Parameters) -> np.ndarray:
-    signal, sr = librosa.load(wav_file, sr=parameters.audio_sample_rate_Hz)
+def process_audio(
+    wav_file: str, audio_signal: np.ndarray, audio_fs: int, parameters: Parameters
+) -> np.ndarray:
+    if wav_file is not None:
+        signal, sr = librosa.load(wav_file, sr=parameters.audio_sample_rate_Hz)
+    else:
+        if audio_fs is None:
+            raise ValueError("audio_fs must be provided")            
+        if audio_signal is None:
+            raise ValueError("audio_signal must be provided")   
+
+        sr = parameters.audio_sample_rate_Hz
+        signal = librosa.resample(audio_signal, orig_sr=audio_fs, target_sr=sr)
+            
 
     # Sound pressure level is based on RMS value:
     audio_rms_dB = to_dB(rms(signal))
 
     # A full scale +-1 reference pure tone has RMS level of -3 dB relative to FS.
     # Therefore, the unscaled audio corresponds to the following sound pressure level:
-    audio_dB_SPL = (
-        audio_rms_dB
-        + parameters.reference_dB_SPL
-        + to_dB(np.sqrt(2))
-    )
+    audio_dB_SPL = audio_rms_dB + parameters.reference_dB_SPL + to_dB(np.sqrt(2))
 
     # Calculate the calibration gain that will produce the desired sound pressure level:
     calibration_gain_dB = parameters.audio_dB_SPL - audio_dB_SPL
@@ -48,7 +56,6 @@ def process_audio(wav_file: str, parameters: Parameters) -> np.ndarray:
 def freedom_mic(
     signal: np.ndarray,
     parameters: Parameters,
-   
 ) -> np.ndarray:
     calibration_freq_Hz = parameters.audio_sample_rate_Hz / 16
     data = np.load(FAR_DATA, allow_pickle=True).item()

@@ -135,6 +135,9 @@ plot_neurogram(
 )
 ```
 
+## Speech Coding Strategies
+Note that we include several options for sound encoding and integrated with PHAST, see the folder [scs](scs/README.md) for more information. 
+
 
 ## Citation
 

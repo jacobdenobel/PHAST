@@ -376,14 +376,14 @@ def ab_e2e(
 
     fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
     ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
-    return audio_signal, pulse_train, ng
+    return (audio_signal, 17400), pulse_train, ng
 
 
 def ace_e2e(
     wav_file: str = None,
     tp: ThresholdProfile = None,
-    # audio_signal: np.ndarray = None,
-    # audio_fs: int = None,
+    audio_signal: np.ndarray = None,
+    audio_fs: int = None,
     scaling_factor: float = 1.,
     n_trials=1,
     selected_fibers: np.ndarray = None,
@@ -401,6 +401,8 @@ def ace_e2e(
 
     pulse_train, parameters, audio_signal = ace.ace(
         wav_file,
+        audio_signal, 
+        audio_fs,
         phase_width_us=int(tp.electrode.pw * 1e6),
         phase_gap_us=int(tp.electrode.ipg * 1e6),
         lower_levels=(tp.electrode.t_level * 1e4) / scaling_factor,
@@ -415,4 +417,6 @@ def ace_e2e(
     fiber_stats = phast(fibers, stimulus, n_trials=n_trials, n_jobs=n_jobs)
     ng = Neurogram(fiber_stats, binsize or tp.electrode.pw * 2)
     
-    return audio_signal, pulse_train, ng
+    return (audio_signal, parameters.audio_sample_rate_Hz), pulse_train, ng
+
+
