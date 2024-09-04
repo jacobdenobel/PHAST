@@ -32,5 +32,5 @@ def ace(
     channels, magnitudes = collate_into_sequence(channel_power, parameters)
     electrode_seq = channel_mapping(channels, magnitudes, parameters)
     pulse_train = electrode_seq.to_pulse_table()
-
+    pulse_train = np.flip(pulse_train, axis=0)
     return pulse_train, parameters, audio_signal

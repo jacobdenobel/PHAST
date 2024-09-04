@@ -259,9 +259,9 @@ def load_cochlear(
         pw=pw * 1e-6,
         ipg=ipg * 1e-6,
     )
-    i_det = (data["TI"][idx] * 1e-3).T
-    i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
-    i_det = np.flip(i_det, axis=1)
+    i_det = (data["TI"][idx] * 1e-3)
+    i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=1).reshape(-1, 1)).T
+    
     tp = ThresholdProfile(
         i_det=i_det,
         electrode=elec,

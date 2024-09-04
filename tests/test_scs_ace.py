@@ -92,7 +92,8 @@ class TestAce(unittest.TestCase):
         self.assertEqual(channels.size, 11604)
 
         electrode_seq = ace.channel_mapping(channels, magnitudes, parameters)
-        pulse_train = electrode_seq.to_pulse_table()
+        pulse_train = np.flip(electrode_seq.to_pulse_table(), axis=0)
+        
         self.assertEqual(pulse_train.shape, (22, 11604))
         self.assertEqual(pulse_train.max(), 0.01)
         self.assertEqual(pulse_train.min(), 0.0)
