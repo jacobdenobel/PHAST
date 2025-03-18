@@ -23,6 +23,7 @@ namespace phast
         double adaptation;
         double sigma_rs;
         double spont_activity; // spikes per second 
+        double effective_spont_activity;
 
         FiberStats stats;
         RefractoryPeriod refractory_period;
@@ -45,7 +46,9 @@ namespace phast
 
             : i_det(i_det), spatial_constant(spatial_constant), sigma(sigma), fiber_id(fiber_id),
               stochastic_threshold(0.0), threshold(0.0), refractoriness(0.0), accommodation(0.0), adaptation(0.0),
-              sigma_rs(sigma_rs), spont_activity(spont_activity),
+              sigma_rs(sigma_rs), 
+              spont_activity(spont_activity), 
+              effective_spont_activity(spont_activity / (1.0 - spont_activity * refractory_period.absolute.mu)),
               stats(fiber_id, store_stats),
               refractory_period(refractory_period),
               decay(decay)
@@ -85,9 +88,12 @@ namespace phast
             }
             const double i_given_sp = pulse.amplitude * spatial_constant[pulse.electrode];
             
-            const double r_spont = generator().uniform();
+            // This should take into account the relative refractory period
+            const double r_spont = std::isinf(refractoriness) ? 1.0: generator().uniform();
             const double time_elapsed = (pulse.time - stats.last_t) * pulse_train.time_step;
-            const bool spiked = pulse.amplitude > threshold || r_spont <= (spont_activity * time_elapsed);
+            // const double p_spont_spike = spont_activity * time_elapsed; 
+            const double p_spont_spike = 1.0 - std::exp(-effective_spont_activity * time_elapsed); 
+            const bool spiked = pulse.amplitude > threshold || r_spont <= p_spont_spike;
 
             stats.update(pulse.time, pulse.electrode, pulse.amplitude,
                          threshold, stochastic_threshold,
