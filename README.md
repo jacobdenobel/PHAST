@@ -23,7 +23,7 @@ stimulus = PulseTrain(
     ...
 )
 ```
-Only the first parameter is required, and should be a numpy array (matrix) of shape n electrodes x time steps. Then each element of the matrix encodes the amplitude of a pulse at given timestep for a given electrode. Ensure that the time steps of the matrix match the ```time_step`` parameter. 
+Only the first parameter is required, and should be a numpy array (matrix) of shape n electrodes x time steps. Then each element of the matrix encodes the amplitude of a pulse at given timestep for a given electrode. Ensure that the time steps of the matrix match the ```time_step``` parameter. 
 
 The ```ConstantPulseTrain``` has the following signature:
 
@@ -50,10 +50,11 @@ fiber = Fiber(
     sigma_rs: float = ...,
     refractory_period: RefractoryPeriod = ...,
     decay: Decay = ...,
-    store_stats: bool = False
+    store_stats: bool = False,
+    spont_activity: float = 0.0
 )
 ```
-Here ```i_det, spatial_constant, sigma```, are all vectors of length number of electrodes, which should match the number of electrodes in the ```PulseTrain``` used in stimulation. For ```i_det```, this defines the deteriministic threshold after which the fiber spikes, for a pulse from a given electrode. The ```spatial_constant``` defines an electrode specific spatial constant, which is used to scale stimulation. The ```sigma``` parameter is another electrode specific parameter, which is the relative spread per ```i_det```, i.e. ```relative_spread * i_det```. ```fiber_id``` encodes a unique identifier, specified by the used to attach to the fiber. ```sigma_rs``` is used for stochasticy between trials. ```store_stats``` defines whether all statistics should be stored, such as the refractoriness at each time step. This defaults to False, and should be used with caution, as this *significantly increases memory usage*.
+Here ```i_det, spatial_constant, sigma```, are all vectors of length number of electrodes, which should match the number of electrodes in the ```PulseTrain``` used in stimulation. For ```i_det```, this defines the deteriministic threshold after which the fiber spikes, for a pulse from a given electrode. The ```spatial_constant``` defines an electrode specific spatial constant, which is used to scale stimulation. The ```sigma``` parameter is another electrode specific parameter, which is the relative spread per ```i_det```, i.e. ```relative_spread * i_det```. ```fiber_id``` encodes a unique identifier, specified by the used to attach to the fiber. ```sigma_rs``` is used for stochasticy between trials. ```store_stats``` defines whether all statistics should be stored, such as the refractoriness at each time step. This defaults to False, and should be used with caution, as this *significantly increases memory usage*. ```spont_activity``` is an *experimental* feature, which denotes the spontaneous firing rate of the fiber, defined in spikes/s. 
 ```RefractoryPeriod``` is a parameter wrapper for handling both absolute and relative refractoriness. It can be defined as follows, and if not given explicitly to the ```Fiber```, the following default values are used:
 
 ```python

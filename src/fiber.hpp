@@ -5,6 +5,8 @@
 #include "pulse_train.hpp"
 #include "refractory_period.hpp"
 
+
+
 namespace phast
 {
     struct Fiber
@@ -20,7 +22,7 @@ namespace phast
         double accommodation;
         double adaptation;
         double sigma_rs;
-        double spont_activity;
+        double spont_activity; // spikes per second 
 
         FiberStats stats;
         RefractoryPeriod refractory_period;
@@ -82,8 +84,10 @@ namespace phast
                                   std::max(0., (pulse_train.time_to_ap + (pulse_train.sigma_ap * z))) / pulse_train.time_step));
             }
             const double i_given_sp = pulse.amplitude * spatial_constant[pulse.electrode];
-            const bool spiked = pulse.amplitude > threshold;
             
+            const double r_spont = generator().uniform();
+            const double time_elapsed = (pulse.time - stats.last_t) * pulse_train.time_step;
+            const bool spiked = pulse.amplitude > threshold || r_spont <= (spont_activity * time_elapsed);
 
             stats.update(pulse.time, pulse.electrode, pulse.amplitude,
                          threshold, stochastic_threshold,

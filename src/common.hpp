@@ -67,6 +67,12 @@ namespace phast
             return 0.0;
         }
 
+        double uniform()
+        {
+            static const double dm = _generator.max() - _generator.min();
+            return (_generator() - _generator.min()) / dm;
+        }
+
         void set_seed(const int seed)
         {
             _seed = seed;
