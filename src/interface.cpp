@@ -276,7 +276,8 @@ void define_fiber(py::module &m)
                 double,                 // sigma_rs
                 RefractoryPeriod,       // refractory_period
                 std::shared_ptr<Decay>, // decay
-                bool                    // store_stats
+                bool,                   // store_stats
+                double                  // spont_activity
                 >(),
             py::arg("i_det"),
             py::arg("spatial_constant"),
@@ -285,7 +286,9 @@ void define_fiber(py::module &m)
             py::arg("sigma_rs") = 0.0,
             py::arg("refractory_period") = RefractoryPeriod(),
             py::arg("decay") = std::make_shared<approximated::LeakyIntegratorDecay>(),
-            py::arg("store_stats") = false)
+            py::arg("store_stats") = false,
+            py::arg("spont_activity") = 0.0
+        )
         .def_property_readonly("i_det", [](const Fiber &p)
                                {
                                    const auto v = p.i_det;
@@ -323,8 +326,10 @@ void define_phast(py::module &m)
               double,                                   // sigma_rs = 0.0,
               int,                                      // n_jobs = -1,
               double,                                   // time_step = constants::time_step
-              double,
-              bool>(&phast::phast),
+              double,                                   // time_to_ap
+              bool,                                     // store_stats
+              double                                    // spont_activity
+              >(&phast::phast),
           py::arg("i_det"),
           py::arg("i_min"),
           py::arg("pulse_train"),
@@ -338,7 +343,9 @@ void define_phast(py::module &m)
           py::arg("n_jobs") = -1,
           py::arg("time_step") = constants::time_step,
           py::arg("time_to_ap") = constants::time_to_ap,
-          py::arg("store_stats") = false);
+          py::arg("store_stats") = false,
+          py::arg("spont_activity") = 0.0
+        );
 
     m.def("phast", py::overload_cast<std::vector<Fiber>, const PulseTrain &, const int, const size_t, bool>(&phast::phast),
           py::arg("fibers"),

@@ -75,7 +75,9 @@ namespace phast
         const int n_jobs = -1,
         const double time_step = constants::time_step,
         const double time_to_ap = constants::time_to_ap,
-        const bool store_stats = false)
+        const bool store_stats = false,
+        const double spont_activity = 0.0
+    )
     {
         const auto pulse_train = CompletePulseTrain(pulse_train_array, time_step, time_to_ap);
 
@@ -85,7 +87,9 @@ namespace phast
             sigma_rs,
             refractory_period,
             decay,
-            store_stats);
+            store_stats,
+            spont_activity
+        );
 
         return phast({default_fiber}, pulse_train, n_jobs, n_trials, use_random);
     }

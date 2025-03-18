@@ -20,6 +20,7 @@ namespace phast
         double accommodation;
         double adaptation;
         double sigma_rs;
+        double spont_activity;
 
         FiberStats stats;
         RefractoryPeriod refractory_period;
@@ -36,11 +37,13 @@ namespace phast
               const double sigma_rs,
               const RefractoryPeriod &refractory_period,
               const std::shared_ptr<Decay> decay,
-              const bool store_stats = false)
+              const bool store_stats = false,
+              const double spont_activity = .0
+            )
 
             : i_det(i_det), spatial_constant(spatial_constant), sigma(sigma), fiber_id(fiber_id),
               stochastic_threshold(0.0), threshold(0.0), refractoriness(0.0), accommodation(0.0), adaptation(0.0),
-              sigma_rs(sigma_rs),
+              sigma_rs(sigma_rs), spont_activity(spont_activity),
               stats(fiber_id, store_stats),
               refractory_period(refractory_period),
               decay(decay)
@@ -80,6 +83,8 @@ namespace phast
             }
             const double i_given_sp = pulse.amplitude * spatial_constant[pulse.electrode];
             const bool spiked = pulse.amplitude > threshold;
+            
+
             stats.update(pulse.time, pulse.electrode, pulse.amplitude,
                          threshold, stochastic_threshold,
                          refractoriness, adaptation, accommodation,
@@ -110,12 +115,13 @@ namespace phast
             auto new_decay = decay->randomize(generator());
             new_decay->time_step = decay->time_step;
 
-            auto fiber =  Fiber(
+            auto fiber = Fiber(
                 i_det, spatial_constant, new_sigma, fiber_id,
                 sigma_rs,
                 refractory_period.randomize(generator()),
                 new_decay,
-                stats.store_stats
+                stats.store_stats,
+                spont_activity 
             );
             fiber.stats.time_step = decay->time_step;
             return fiber;
