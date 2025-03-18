@@ -82,11 +82,12 @@ namespace phast
                     const double i_given_sp,
                     const double idet,
                     const size_t ap_time, 
-                    const bool historical_decay
+                    const bool historical_decay,
+                    const bool spiked
+                    
                 )
         {
             reserve(256, 2048, historical_decay);
-            bool spiked = i_given > threshold;
             if (spiked)
             {
                 n_spikes++;

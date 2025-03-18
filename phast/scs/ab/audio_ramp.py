@@ -79,7 +79,7 @@ def apply_ramp_type(
     elif ramp_type == "cosine_squared" or ramp_type == "cs":
         ramped_audio_function = CosineSquaredRamp(ramp_duration=ramp_duration, Fs=Fs)
     else:
-        ValueError(
+        raise ValueError(
             "This ramp type is not an option. Choose from: linear, cosine, cosine_squared"
         )
 

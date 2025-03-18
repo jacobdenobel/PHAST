@@ -4,8 +4,6 @@
 #include "neurogram.hpp"
 #include "thread_pool.hpp"
 
-
-
 namespace phast
 {
     std::vector<FiberStats> phast(

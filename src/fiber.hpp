@@ -78,14 +78,16 @@ namespace phast
                 ap_time = pulse.time + static_cast<size_t>(std::floor(
                                   std::max(0., (pulse_train.time_to_ap + (pulse_train.sigma_ap * z))) / pulse_train.time_step));
             }
-
+            const double i_given_sp = pulse.amplitude * spatial_constant[pulse.electrode];
+            const bool spiked = pulse.amplitude > threshold;
             stats.update(pulse.time, pulse.electrode, pulse.amplitude,
                          threshold, stochastic_threshold,
                          refractoriness, adaptation, accommodation,
-                         pulse.amplitude * spatial_constant[pulse.electrode],
+                         i_given_sp,
                          i_det[pulse.electrode],
                          ap_time,
-                         decay->is_historical()
+                         decay->is_historical(),
+                         spiked
                          );
         }
 
