@@ -91,6 +91,7 @@ class ThresholdProfile:
         adaptation_rate: float = 19.996,
         sigma_amp: float = 0.6e-2,
         sigma_rate: float = 0.6e-2,
+        spont_activity: float = 0.0,
         **kwargs,
     ) -> List[Fiber]:
 
@@ -127,6 +128,7 @@ class ThresholdProfile:
                         sigma_amp,
                         sigma_rate,
                     ),
+                    spont_activity=spont_activity
                 )
             )
         return fibers
