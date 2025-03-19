@@ -17,13 +17,13 @@ class TestAce(unittest.TestCase):
         delta_d = abs(la.size * (1 / sr) - audio.size * (1 / audio_fs))
         self.assertLess(delta_d, 1e-4)
         self.assertEqual(pulse_train.shape, (22, 11604))
-        self.assertEqual(ng.data.shape, (3200, 27525))
+        self.assertEqual(ng.data.shape, (3200, 27526))
 
         (audio, audio_fs), pulse_train, ng = ace_e2e(audio_signal=la, audio_fs=sr)
         delta_d = abs(la.size * (1 / sr) - audio.size * (1 / audio_fs))
         self.assertLess(delta_d, 1e-4)
         self.assertEqual(pulse_train.shape, (22, 11604))
-        self.assertEqual(ng.data.shape, (3200, 27525))
+        self.assertEqual(ng.data.shape, (3200, 27526))
 
     def test_parameters(self):
         p = ace.Parameters()

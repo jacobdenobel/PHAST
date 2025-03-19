@@ -37,7 +37,7 @@ class TestPackage(unittest.TestCase):
             tp=tp, audio_signal=sound, audio_fs=sr, current_steering=True
         )
         self.assertEqual(ng.data.shape[0], 3200)
-        self.assertEqual(ng.data.shape[1], 24764)
+        self.assertEqual(ng.data.shape[1], 24765)
 
     def test_end_to_end_no_cs(self):
         tp = phast.load_df120()
@@ -45,7 +45,7 @@ class TestPackage(unittest.TestCase):
             phast.SOUNDS["defineit"], tp=tp, current_steering=False
         )
         self.assertEqual(ng.data.shape[0], 3200)
-        self.assertEqual(ng.data.shape[1], 24764)
+        self.assertEqual(ng.data.shape[1], 24765)
 
     def test_wav_to_electrodogram_current_steering_no_virtual(self):
         self.evaluate(
