@@ -5,10 +5,10 @@ from setuptools import setup, find_packages
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 
 ext = Pybind11Extension(
-    "phast.phastcpp", glob("src/*cpp"), include_dirs=["src"], cxx_std=17
+    "phast.phastcpp", glob("src/*cpp"), include_dirs=["src"], cxx_std=17,
 )
 
 if platform.system() in ("Linux", "Darwin"):

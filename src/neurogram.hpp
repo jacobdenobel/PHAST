@@ -7,7 +7,6 @@ namespace phast
 {
     struct Neurogram
     {
-
         double binsize_;
         double duration_;
         std::vector<int> fiber_ids_;
@@ -18,7 +17,7 @@ namespace phast
             const double binsize) : binsize_(binsize),
                                     duration_(max_duration(fs)),
                                     fiber_ids_(get_fiber_ids(fs)),
-                                    data_(fiber_ids_.size(), std::vector<int>(std::ceil(duration_ / binsize_), 0))
+                                    data_(fiber_ids_.size(), std::vector<int>(std::ceil(duration_ / binsize_) + 1, 0))
         {
             for (int data_id = 0; data_id < fiber_ids_.size(); data_id++)
                 compute_spike_rate(fs, data_id, fs[0].time_step);
@@ -38,7 +37,7 @@ namespace phast
                 {
                     const double spike_time = sp * ts;
                     const int bin_idx = std::floor(spike_time / binsize_);
-                    data_[data_id][bin_idx] += 1;
+                    data_.at(data_id).at(bin_idx) += 1;
                 }
             }
         }

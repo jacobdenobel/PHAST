@@ -113,6 +113,7 @@ class TestPackage(unittest.TestCase):
             max_freq = channel_freq[pulse_train.sum(axis=1).argmax()]
             closest_to_1kHz = find_nearest(channel_freq, 1000)
             self.assertEqual(max_freq, closest_to_1kHz)
+                    
 
 
 def find_nearest_idx(array, value):

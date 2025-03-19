@@ -388,23 +388,40 @@ template <typename T>
 py::array_t<T> create_2d_numpy_array(const std::vector<std::vector<T>> &vec)
 {
     // Get the dimensions of the input vector
+    // size_t rows = vec.size();
+    // size_t cols = vec.empty() ? 0 : vec[0].size();
+
+    // // Allocate a new numpy array
+    // py::array_t<T> result({rows, cols});
+
+    // // Get a pointer to the data in the numpy array
+    // T *result_ptr = result.mutable_data();
+    
+
+    // // Copy the data from the vector to the numpy array
+    // for (size_t i = 0; i < rows; ++i)
+    // {
+    //     for (size_t j = 0; j < cols; ++j)
+    //     {
+    //         result_ptr[i * cols + j] = vec[i][j];
+    //     }
+    // }
+
     size_t rows = vec.size();
     size_t cols = vec.empty() ? 0 : vec[0].size();
 
-    // Allocate a new numpy array
-    py::array_t<T> result({rows, cols});
+    // Create a contiguous buffer
+    std::vector<T> flat_data;
+    flat_data.reserve(rows * cols);
 
-    // Get a pointer to the data in the numpy array
-    T *result_ptr = static_cast<T *>(result.request().ptr);
-
-    // Copy the data from the vector to the numpy array
-    for (size_t i = 0; i < rows; ++i)
+    for (const auto &row : vec)
     {
-        for (size_t j = 0; j < cols; ++j)
-        {
-            result_ptr[i * cols + j] = vec[i][j];
-        }
+        flat_data.insert(flat_data.end(), row.begin(), row.end());
     }
+
+    // Create a NumPy array and move data
+    py::array_t<T> result({rows, cols});
+    std::memcpy(result.mutable_data(), flat_data.data(), flat_data.size() * sizeof(T));
 
     return result;
 }
@@ -420,7 +437,9 @@ void define_neurogram(py::module &m)
         .def_readonly("duration", &Neurogram::duration_)
         .def_readonly("fiber_ids", &Neurogram::fiber_ids_)
         .def_property_readonly("data", [](Neurogram &self)
-                               { return create_2d_numpy_array(self.data_); });
+                               { return create_2d_numpy_array(self.data_); },
+                               py::return_value_policy::move)
+        ;
 }
 
 PYBIND11_MODULE(phastcpp, m)
