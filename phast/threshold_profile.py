@@ -186,7 +186,7 @@ def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
     TIb = data["TIb"][ft.value] * 1e-3
     i_det = TIa + TIb
     i_det = np.flip(i_det[:, : i_det.shape[1], :].reshape(-1, i_det.shape[2]).T, axis=0)
-    i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=0))
+    i_det = np.nan_to_num(i_det.T, nan=np.nanmax(i_det, axis=1)).T
     
     tp = ThresholdProfile(
         i_det=i_det,
