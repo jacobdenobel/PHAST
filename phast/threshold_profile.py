@@ -136,7 +136,9 @@ class ThresholdProfile:
 
 def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
     """Elektrodes in datastructuur Df120 zijn klinisch genummerd, dus van apicaal (e=1) naar basaal (e=16)
-
+    
+    # Fidelity120 HC3A MS All Morphologies 18µs CF 0.5-3.5 mm.mat
+    
     Df120(m) : Data voor morfologie m
                m=1 -> Gezonde vezels
                m=2 -> Short terminals
