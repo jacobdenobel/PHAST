@@ -105,14 +105,14 @@ class ThresholdProfile:
             ]
 
         fibers = []
-        for fiber_idx in selected_fibers:
+        for i, fiber_idx in enumerate(selected_fibers):
             fibers.append(
                 Fiber(
                     i_det=picker(self.i_det[fiber_idx]),
                     spatial_constant=picker(self.spatial_factor(fiber_idx)),
                     sigma=picker(self.sigma(fiber_idx, rs)),
                     sigma_rs=sigma_rs,
-                    fiber_id=fiber_idx,
+                    fiber_id=i,
                     store_stats=store_stats,
                     refractory_period=RefractoryPeriod(
                         absolute_refractory_period,
