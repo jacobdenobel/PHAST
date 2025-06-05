@@ -2,6 +2,8 @@
 
 [![test-python](https://github.com/jacobdenobel/PHAST/actions/workflows/test.yml/badge.svg)](https://github.com/jacobdenobel/PHAST/actions/workflows/test.yml)
 
+![diagram](phast.png)
+
 This repository contains an archive implementation of a phenomenological auditory nerve fiber model. The model is implemented in C++, with a runtime interface for Python. It can be easily installed via pip:
 ```bash
 pip install phastc
