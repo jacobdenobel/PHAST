@@ -8,7 +8,6 @@ import phast
 from phast.scs import ab as abt
 
 
-
 def select_fibers(fiber_freq, mel_scale):
     grouped = np.digitize(fiber_freq, mel_scale, True)
     selected_fibers = []
@@ -21,7 +20,6 @@ def select_fibers(fiber_freq, mel_scale):
             )
         )
     return np.array(selected_fibers)
-
 
 
 def get_fiber_freq_specres(tp, max_freq, power=25):
@@ -63,12 +61,12 @@ def generate_specres(path):
         accommodation_rate=2,
         adaptation_rate=19.996,
         selected_fibers=selected_fibers,
-        spont_activity = 50.0,
+        spont_activity=50.0,
     )
     audio_signal = audio_signal[0]
     neurogram_data = neurogram.data / n_trials
     ret_data = neurogram_data, neurogram.binsize, min_freq, max_freq, n_mels
-    
+
     return ret_data
 
 
@@ -78,6 +76,6 @@ class TesDin(unittest.TestCase):
         generate_specres(path)
         self.assertTrue(True)
 
-    
+
 if __name__ == "__main__":
     unittest.main()

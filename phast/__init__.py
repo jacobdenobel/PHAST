@@ -340,7 +340,6 @@ def plot_neurogram(ng: Neurogram, ax=None, fig=None) -> None:
     fig.colorbar(img, ax=ax)
 
 
-
 def ab_e2e(
     wav_file: str = None,
     tp: ThresholdProfile = None,

@@ -4,6 +4,7 @@ Created on Thu Sep  5 15:44:51 2019
 
 @author: beimx004
 """
+
 import numpy as np
 from .defaults import DEFAULT_BINS
 

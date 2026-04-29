@@ -37,15 +37,25 @@ class TestThreading(unittest.TestCase):
         ngs = []
         axes = [None] * 3
         for ax, decay in zip(
-            axes, (phast.Powerlaw(), phast.Exponential(), phast.LeakyIntegratorDecay(2, 2, 4, 4,))
+            axes,
+            (
+                phast.Powerlaw(),
+                phast.Exponential(),
+                phast.LeakyIntegratorDecay(
+                    2,
+                    2,
+                    4,
+                    4,
+                ),
+            ),
         ):
             ng = self.run_phast(decay)
             ngs.append(ng.data)
-        
+
         for c1, c2 in itertools.combinations(range(3), 2):
             p_dist = np.linalg.norm(ngs[c1] - ngs[c2])
             self.assertLessEqual(p_dist, 600.0)
-        
+
 
 if __name__ == "__main__":
     unittest.main()

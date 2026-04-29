@@ -17,16 +17,18 @@ namespace phast
         const size_t n_exper = fibers.size() * n_trials;
 
         std::vector<Fiber> trials(n_exper);
-        
+
         const int processor_count = std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
-        const int n_threads = n_jobs == -1 ? processor_count : std::min(std::max(1, n_jobs), processor_count);
-        
+        int n_threads = n_jobs == -1 ? processor_count : std::min(std::max(1, n_jobs), processor_count);
+        n_threads = std::min(n_threads, static_cast<int>(trials.size()));
+
         ctpl::thread_pool pool(n_threads);
 
-        auto process_trial = [&pulse_train](int idx, Fiber& trial) {
+        auto process_trial = [&pulse_train](int idx, Fiber &trial)
+        {
             return trial.process_pulse_train(pulse_train);
         };
-        
+
         int trial_id = 0;
         for (size_t fi = 0; fi < fibers.size(); fi++)
         {
@@ -38,7 +40,8 @@ namespace phast
             {
                 const size_t ti = trial_id++;
 
-                trials[ti] = fiber.randomize(trial_id);
+                trials[ti] = fiber.randomize(ti);
+
                 if (SEED != 0 && n_threads > 1)
                     trials[ti]._generator = RandomGenerator(SEED + ti);
 
@@ -50,7 +53,7 @@ namespace phast
                 pool.push(process_trial, std::ref(trials[ti]));
             }
         }
-        
+
         pool.stop(true);
 
         std::vector<FiberStats> result;
@@ -76,8 +79,7 @@ namespace phast
         const double time_step = constants::time_step,
         const double time_to_ap = constants::time_to_ap,
         const bool store_stats = false,
-        const double spont_activity = 0.0
-    )
+        const double spont_activity = 0.0)
     {
         const auto pulse_train = CompletePulseTrain(pulse_train_array, time_step, time_to_ap);
 
@@ -88,8 +90,7 @@ namespace phast
             refractory_period,
             decay,
             store_stats,
-            spont_activity
-        );
+            spont_activity);
 
         return phast({default_fiber}, pulse_train, n_jobs, n_trials, use_random);
     }

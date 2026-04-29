@@ -4,6 +4,7 @@ Created on Fri Sep  6 15:22:02 2019
 
 @author: beimx004
 """
+
 import numpy as np
 from .defaults import DEFAULT_BINS, DEFAULT_BIN_TO_LOC_MAP
 

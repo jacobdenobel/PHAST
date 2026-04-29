@@ -140,7 +140,7 @@ def pulse_train_to_virtual(
     n_virtual: int = 8,
     charge_balanced: bool = False,
 ):
-    (n_electrodes, n_samples) = weights_matrix.shape
+    n_electrodes, n_samples = weights_matrix.shape
     n_virtual_channels = (n_electrodes - 1) * n_virtual + 1
     pulse_times, pulse_electrodes = np.where(pulse_train.T < 0)
     pulse_train_virtual = np.zeros((n_virtual_channels, n_samples))

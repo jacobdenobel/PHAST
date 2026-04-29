@@ -135,13 +135,18 @@ class TestPhast(unittest.TestCase):
         n_trials = multiprocessing.cpu_count()
         decay = phast.LeakyIntegratorDecay()
         fiber_stats = self.run_phast(
-            decay, store_stats=False, parallel=True, n_trials=n_trials, duration=duration
+            decay,
+            store_stats=False,
+            parallel=True,
+            n_trials=n_trials,
+            duration=duration,
         )
         spike_times = phast.spike_times(fiber_stats)
         spike_rate = phast.spike_rate(
             spike_times, num_bins=50, duration=duration, n_trials=n_trials
         )
         self.assertEqual(len(spike_rate), 50)
+
 
 if __name__ == "__main__":
     unittest.main()

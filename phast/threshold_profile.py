@@ -128,7 +128,7 @@ class ThresholdProfile:
                         sigma_amp,
                         sigma_rate,
                     ),
-                    spont_activity=spont_activity
+                    spont_activity=spont_activity,
                 )
             )
         return fibers
@@ -136,9 +136,9 @@ class ThresholdProfile:
 
 def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
     """Elektrodes in datastructuur Df120 zijn klinisch genummerd, dus van apicaal (e=1) naar basaal (e=16)
-    
+
     # Fidelity120 HC3A MS All Morphologies 18µs CF 0.5-3.5 mm.mat
-    
+
     Df120(m) : Data voor morfologie m
                m=1 -> Gezonde vezels
                m=2 -> Short terminals
@@ -189,7 +189,7 @@ def load_df120(ft: FiberType = FiberType.HEALTHY) -> "ThresholdProfile":
     i_det = TIa + TIb
     i_det = np.flip(i_det[:, : i_det.shape[1], :].reshape(-1, i_det.shape[2]).T, axis=0)
     i_det = np.nan_to_num(i_det.T, nan=np.nanmax(i_det, axis=1)).T
-    
+
     tp = ThresholdProfile(
         i_det=i_det,
         electrode=elec,
@@ -263,9 +263,9 @@ def load_cochlear(
         pw=pw * 1e-6,
         ipg=ipg * 1e-6,
     )
-    i_det = (data["TI"][idx] * 1e-3)
+    i_det = data["TI"][idx] * 1e-3
     i_det = np.nan_to_num(i_det, nan=np.nanmax(i_det, axis=1).reshape(-1, 1)).T
-    
+
     tp = ThresholdProfile(
         i_det=i_det,
         electrode=elec,

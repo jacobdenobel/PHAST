@@ -1,4 +1,4 @@
-import os 
+import os
 import unittest
 
 import numpy as np
@@ -6,7 +6,7 @@ import numpy as np
 import phast
 
 ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
-IDET = np.load(os.path.join(phast.DATA_DIR,  "idet.npy"))
+IDET = np.load(os.path.join(phast.DATA_DIR, "idet.npy"))
 
 
 class TestThreading(unittest.TestCase):
@@ -21,20 +21,21 @@ class TestThreading(unittest.TestCase):
                     spatial_constant=[0.866593],
                     sigma=[0.000774 * 0.06],
                     fiber_id=fiber_idx,
-                    decay=decay,  
+                    decay=decay,
                     store_stats=False,
                 )
             )
-            
+
     def test_thread_bleeding(self):
-        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 10, n_jobs=-1)
+        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials=10, n_jobs=-1)
         for fs in fiber_stats:
             self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
-        
+
     def test_bleeding(self):
-        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials = 10, n_jobs=1)
+        fiber_stats = phast.phast(self.fibers, self.stimulus, n_trials=10, n_jobs=1)
         for fs in fiber_stats:
             self.assertEqual(fs.n_pulses, self.stimulus.n_pulses)
-        
+
+
 if __name__ == "__main__":
     unittest.main()

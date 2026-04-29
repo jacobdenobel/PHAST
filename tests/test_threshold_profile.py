@@ -16,7 +16,7 @@ class TestTP(unittest.TestCase):
             self.assertEqual(tp.electrode.n_electrodes, 16)
             self.assertEqual(tp.electrode.pw, 18e-6)
             self.assertEqual(tp.electrode.cs_enabled, True)
-            
+
     def test_from_idet(self):
         i_det = np.load(phast.I_DET)
         tp = phast.ThresholdProfile.from_idet(i_det)
@@ -26,10 +26,7 @@ class TestTP(unittest.TestCase):
         self.assertEqual(tp.electrode.n_electrodes, 16)
         self.assertEqual(tp.electrode.pw, 18e-6)
         self.assertEqual(tp.electrode.cs_enabled, False)
-        
-        
-        
-        
-            
+
+
 if __name__ == "__main__":
     unittest.main()

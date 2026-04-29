@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 import phast
 
+
 class TestProblem(unittest.TestCase):
     def setUp(self):
         self.config = {
@@ -48,7 +49,7 @@ class TestProblem(unittest.TestCase):
             fiber_id=fiber_idx,
             sigma_rs=self.config["sigma_rs"],
             refractory_period=refractoriness,  # object
-            decay=decay, 
+            decay=decay,
             store_stats=False,
         )
         fiber_stats = phast.phast([fiber], stimulus)

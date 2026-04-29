@@ -9,7 +9,6 @@ import numpy as np
 from .parameters import Parameters, to_dB, from_dB
 from ...constants import DATA_DIR
 
-
 FAR_DATA = os.path.join(DATA_DIR, "freedom_avg_response_data.npy")
 
 

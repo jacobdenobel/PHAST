@@ -27,7 +27,7 @@ class TestAce(unittest.TestCase):
 
     def test_parameters(self):
         p = ace.Parameters()
-        self.assertAlmostEqual(p.agc_kneepoint, 0.07933868577,  places=5)
+        self.assertAlmostEqual(p.agc_kneepoint, 0.07933868577, places=5)
         self.assertAlmostEqual(p.gain_dB, 36, places=5)
         self.assertAlmostEqual(p.dynamic_range_dB, 40, places=5)
 
@@ -93,11 +93,11 @@ class TestAce(unittest.TestCase):
 
         electrode_seq = ace.channel_mapping(channels, magnitudes, parameters)
         pulse_train = np.flip(electrode_seq.to_pulse_table(), axis=0)
-        
+
         self.assertEqual(pulse_train.shape, (22, 11604))
         self.assertEqual(pulse_train.max(), 0.01)
         self.assertEqual(pulse_train.min(), 0.0)
-        self.assertAlmostEqual(pulse_train.sum(), 61.7435,  places=5)
+        self.assertAlmostEqual(pulse_train.sum(), 61.7435, places=5)
 
         pulse_train2, parameters2, _ = ace.ace(SOUNDS["asa"])
         self.assertTrue((pulse_train == pulse_train2).all())

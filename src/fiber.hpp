@@ -5,8 +5,6 @@
 #include "pulse_train.hpp"
 #include "refractory_period.hpp"
 
-
-
 namespace phast
 {
     struct Fiber
@@ -22,7 +20,7 @@ namespace phast
         double accommodation;
         double adaptation;
         double sigma_rs;
-        double spont_activity; // spikes per second 
+        double spont_activity; // spikes per second
         double effective_spont_activity;
 
         FiberStats stats;
@@ -41,13 +39,12 @@ namespace phast
               const RefractoryPeriod &refractory_period,
               const std::shared_ptr<Decay> decay,
               const bool store_stats = false,
-              const double spont_activity = .0
-            )
+              const double spont_activity = .0)
 
             : i_det(i_det), spatial_constant(spatial_constant), sigma(sigma), fiber_id(fiber_id),
               stochastic_threshold(0.0), threshold(0.0), refractoriness(0.0), accommodation(0.0), adaptation(0.0),
-              sigma_rs(sigma_rs), 
-              spont_activity(spont_activity), 
+              sigma_rs(sigma_rs),
+              spont_activity(spont_activity),
               effective_spont_activity(spont_activity / (1.0 - spont_activity * refractory_period.absolute.mu)),
               stats(fiber_id, store_stats),
               refractory_period(refractory_period),
@@ -69,7 +66,7 @@ namespace phast
             }
         }
 
-        void process_pulse(const Pulse& pulse, const PulseTrain &pulse_train)
+        void process_pulse(const Pulse &pulse, const PulseTrain &pulse_train)
         {
             adaptation = decay->compute_spike_adaptation(pulse.time, stats, i_det);
             accommodation = decay->compute_pulse_accommodation(pulse.time, stats);
@@ -84,15 +81,15 @@ namespace phast
             {
                 const auto z = generator()();
                 ap_time = pulse.time + static_cast<size_t>(std::floor(
-                                  std::max(0., (pulse_train.time_to_ap + (pulse_train.sigma_ap * z))) / pulse_train.time_step));
+                                           std::max(0., (pulse_train.time_to_ap + (pulse_train.sigma_ap * z))) / pulse_train.time_step));
             }
             const double i_given_sp = pulse.amplitude * spatial_constant[pulse.electrode];
-            
+
             // This should take into account the relative refractory period
-            const double r_spont = std::isinf(refractoriness) ? 1.0: generator().uniform();
+            const double r_spont = std::isinf(refractoriness) ? 1.0 : generator().uniform();
             const double time_elapsed = (pulse.time - stats.last_t) * pulse_train.time_step;
-            // const double p_spont_spike = spont_activity * time_elapsed; 
-            const double p_spont_spike = 1.0 - std::exp(-effective_spont_activity * time_elapsed); 
+            // const double p_spont_spike = spont_activity * time_elapsed;
+            const double p_spont_spike = 1.0 - std::exp(-effective_spont_activity * time_elapsed);
             const bool spiked = pulse.amplitude > threshold || r_spont <= p_spont_spike;
 
             stats.update(pulse.time, pulse.electrode, pulse.amplitude,
@@ -102,11 +99,10 @@ namespace phast
                          i_det[pulse.electrode],
                          ap_time,
                          decay->is_historical(),
-                         spiked
-                         );
+                         spiked);
         }
 
-        void process_pulse_train(const PulseTrain& pulse_train)
+        void process_pulse_train(const PulseTrain &pulse_train)
         {
             for (size_t i = 0; i < pulse_train.n_pulses; i++)
                 process_pulse(pulse_train.get_pulse(i), pulse_train);
@@ -116,7 +112,7 @@ namespace phast
         Fiber randomize(const int trial_id)
         {
             auto new_sigma = std::vector<double>(sigma.size());
-            const double new_rs = std::max(0., (sigma[0] / i_det[0]) + (sigma_rs * generator()()));
+            const double new_rs = std::max(1e-12, (sigma[0] / i_det[0]) + (sigma_rs * generator()()));
 
             for (size_t i = 0; i < new_sigma.size(); i++)
                 new_sigma[i] = i_det[i] * new_rs;
@@ -131,8 +127,7 @@ namespace phast
                 refractory_period.randomize(generator()),
                 new_decay,
                 stats.store_stats,
-                spont_activity 
-            );
+                spont_activity);
             fiber.stats.time_step = decay->time_step;
             return fiber;
         }

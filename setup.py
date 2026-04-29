@@ -5,10 +5,13 @@ from setuptools import setup, find_packages
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-__version__ = "1.1.6"
+__version__ = "1.1.7"
 
 ext = Pybind11Extension(
-    "phast.phastcpp", glob("src/*cpp"), include_dirs=["src"], cxx_std=17,
+    "phast.phastcpp",
+    glob("src/*cpp"),
+    include_dirs=["src"],
+    cxx_std=17,
 )
 
 if platform.system() in ("Linux", "Darwin"):
@@ -34,9 +37,9 @@ setup(
     zip_safe=False,
     version=__version__,
     install_requires=[
-        "matplotlib", 
-        "numpy", 
-        "librosa", 
+        "matplotlib",
+        "numpy",
+        "librosa",
     ],
     include_package_data=True,
 )

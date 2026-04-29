@@ -58,7 +58,6 @@ Change log:
 @author: beimx004
 """
 
-
 import numpy as np
 from scipy import signal
 from warnings import warn
